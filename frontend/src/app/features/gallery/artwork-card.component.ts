@@ -43,22 +43,27 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
   `,
   styles: [
     `
-      /* Flat, frameless tile: no card chrome, no rounded corners, no shadow —
-         the image sits directly on the page like a print on a gallery wall. */
+      /* Flat tile: no card chrome or shadow. The frame slot is a uniform
+         size; the artwork sits inside it fully visible (never cropped),
+         centred and letterboxed against the page — like a matted print.
+         On hover a thin frame outlines the slot. */
       .card-link { display: block; text-decoration: none; color: inherit; }
       .thumb-wrap {
         aspect-ratio: 4 / 3;
         overflow: hidden;
-        background: var(--gallery-mat);
+        background: var(--gallery-bg);
+        border: 1px solid transparent;
+        transition: border-color 150ms ease;
       }
       .thumb {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         display: block;
-        /* The only hover: a restrained fade — no lift, no zoom, no shadow. */
-        transition: opacity 400ms ease;
+        /* Restrained, quick hover fade — no lift, no zoom. */
+        transition: opacity 150ms ease;
       }
+      .card-link:hover .thumb-wrap { border-color: var(--gallery-ink); }
       .card-link:hover .thumb { opacity: 0.88; }
 
       .meta { padding: 18px 2px 0; }

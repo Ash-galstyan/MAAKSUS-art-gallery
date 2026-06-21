@@ -52,7 +52,7 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
         aspect-ratio: 4 / 3;
         overflow: hidden;
         background: var(--gallery-bg);
-        border: 1px solid transparent;
+        border: 2px solid transparent;
         transition: border-color 150ms ease;
       }
       .thumb {

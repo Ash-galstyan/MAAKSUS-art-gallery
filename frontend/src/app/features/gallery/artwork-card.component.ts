@@ -14,7 +14,6 @@
  */
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import type { ArtworkListItem } from '../../core/api-models/artwork.model';
 import { UploadUrlPipe } from '../../shared/pipes/upload-url.pipe';
 import { PricePipe } from '../../shared/pipes/price.pipe';
@@ -23,49 +22,64 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
   selector: 'app-artwork-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, MatCardModule, UploadUrlPipe, PricePipe],
+  imports: [RouterLink, UploadUrlPipe, PricePipe],
   template: `
     <a [routerLink]="['/artwork', artwork().id]" class="card-link" [attr.aria-label]="artwork().title">
-      <mat-card class="card">
-        <div class="thumb-wrap">
-          <img
-            class="thumb"
-            loading="lazy"
-            decoding="async"
-            [src]="artwork().thumbnailPath | uploadUrl"
-            [alt]="artwork().title"
-          />
-        </div>
-        <mat-card-content class="meta">
-          <h3 class="title">{{ artwork().title }}</h3>
-          <p class="artist">{{ artwork().artist.name }}</p>
-          <p class="price">{{ artwork().basePrice | price }}</p>
-        </mat-card-content>
-      </mat-card>
+      <div class="thumb-wrap">
+        <img
+          class="thumb"
+          loading="lazy"
+          decoding="async"
+          [src]="artwork().thumbnailPath | uploadUrl"
+          [alt]="artwork().title"
+        />
+      </div>
+      <div class="meta">
+        <h3 class="title">{{ artwork().title }}</h3>
+        <p class="artist">{{ artwork().artist.name }}</p>
+        <p class="price">{{ artwork().basePrice | price }}</p>
+      </div>
     </a>
   `,
   styles: [
     `
+      /* Flat, frameless tile: no card chrome, no rounded corners, no shadow —
+         the image sits directly on the page like a print on a gallery wall. */
       .card-link { display: block; text-decoration: none; color: inherit; }
-      .card {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        z-index: 1;
-        transition: transform 200ms ease, box-shadow 200ms ease;
-      }
-      .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); } }
       .thumb-wrap {
         aspect-ratio: 4 / 3;
         overflow: hidden;
-        background: #f4f4f4;
+        background: var(--gallery-mat);
       }
-      .thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .meta { padding: 12px 16px 16px; }
-      .title { margin: 0 0 4px; font-size: 16px; font-weight: 600; line-height: 1.3; }
-      .artist { margin: 0 0 8px; font-size: 13px; color: rgba(0,0,0,0.6); }
-      .price { margin: 0; font-weight: 600; }
+      .thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        /* The only hover: a restrained fade — no lift, no zoom, no shadow. */
+        transition: opacity 400ms ease;
+      }
+      .card-link:hover .thumb { opacity: 0.88; }
+
+      .meta { padding: 18px 2px 0; }
+      .title {
+        margin: 0 0 6px;
+        font-family: var(--gallery-serif);
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: 0.01em;
+        color: var(--gallery-ink);
+      }
+      .artist {
+        margin: 0 0 12px;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 500;
+        color: var(--gallery-muted);
+      }
+      .price { margin: 0; font-size: 13px; letter-spacing: 0.02em; color: var(--gallery-ink); }
     `,
   ],
 })

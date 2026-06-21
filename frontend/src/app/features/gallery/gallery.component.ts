@@ -130,34 +130,66 @@ const PAGE_SIZE = 24;
   styles: [
     `
       .filters {
-        background: #ffffff;
-        border-bottom: 1px solid #eee;
-        padding: 16px 0;
+        background: var(--gallery-bg);
+        border-bottom: 1px solid var(--gallery-line);
+        padding: 20px 0;
         position: sticky;
         top: 64px;
         z-index: 50;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: none;
       }
-      .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
-      .search { width: 100%; max-width: 480px; }
-      .chips { margin-top: 8px; display: flex; flex-wrap: wrap; }
+      .container {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 0 clamp(20px, 5vw, 56px);
+      }
+      .search { width: 100%; max-width: 360px; }
+      .chips { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px; }
 
-      .grid-section { padding: 24px 0 64px; }
+      /* Generous breathing room — wide row gaps let each piece stand alone. */
+      .grid-section { padding: 56px 0 112px; }
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        column-gap: 36px;
+        row-gap: 56px;
       }
 
       .empty {
         text-align: center;
-        padding: 80px 16px;
-        color: rgba(0, 0, 0, 0.5);
+        padding: 96px 16px;
+        color: var(--gallery-muted);
       }
-      .empty-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.4; }
+      .empty-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.35; }
 
-      .loading { display: flex; justify-content: center; padding: 32px; }
+      .loading { display: flex; justify-content: center; padding: 40px; }
       .sentinel { height: 1px; }
+
+      /* Neutralise Material's accent so the only colour on the page is the art.
+         Square the chips/field corners and render selection in gallery ink. */
+      .search {
+        --mdc-outlined-text-field-container-shape: 0;
+        --mdc-outlined-text-field-focus-outline-color: var(--gallery-ink);
+        --mdc-outlined-text-field-caret-color: var(--gallery-ink);
+        --mat-form-field-focus-select-arrow-color: var(--gallery-ink);
+      }
+      .chips {
+        --mdc-chip-container-shape-radius: 0;
+        --mdc-chip-outline-color: var(--gallery-line);
+      }
+      ::ng-deep .chips .mdc-evolution-chip,
+      ::ng-deep .chips .mat-mdc-chip-focus-overlay { border-radius: 0; }
+      ::ng-deep .chips .mat-mdc-chip-selected {
+        --mdc-chip-elevated-container-color: var(--gallery-ink);
+        --mdc-chip-label-text-color: #fff;
+        --mdc-chip-with-icon-selected-icon-color: #fff;
+        --mdc-chip-selected-label-text-color: #fff;
+      }
+      ::ng-deep .chips .mat-mdc-chip-option {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
     `,
   ],
 })

@@ -1,0 +1,21 @@
+# /docker-compose.yml
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gallery-postgres
+    environment:
+      POSTGRES_USER: gallery
+      POSTGRES_PASSWORD: gallery
+      POSTGRES_DB: gallery_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - gallery-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U gallery -d gallery_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  gallery-pgdata:

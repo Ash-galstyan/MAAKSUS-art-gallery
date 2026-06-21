@@ -1,0 +1,1 @@
+CREATE SEQUENCE ameriabank_order_id_seq START 1 INCREMENT 1;-- This is an empty migration.

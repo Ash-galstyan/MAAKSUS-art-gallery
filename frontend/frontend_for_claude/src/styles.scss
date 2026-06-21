@@ -1,0 +1,28 @@
+// frontend/src/styles.scss
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$gallery-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$violet-palette,
+      tertiary: mat.$rose-palette,
+    ),
+    typography: (
+      plain-family: 'Inter, system-ui, sans-serif',
+      brand-family: 'Inter, system-ui, sans-serif',
+    ),
+    density: (
+      scale: 0,
+    ),
+  )
+);
+
+html { color-scheme: light; }
+html { @include mat.all-component-themes($gallery-theme); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; background: #fff; }
+a { color: inherit; }

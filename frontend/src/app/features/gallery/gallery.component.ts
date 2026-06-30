@@ -230,8 +230,12 @@ const PAGE_SIZE = 24;
       }
       .search-field:focus-within { border-bottom-color: var(--gallery-ink); }
 
-      /* Segment 1 (::after): anchored bottom-right, draws the RIGHT side up,
-         then the TOP leftward. */
+      /* Segment 1 (::after): anchored bottom-right, owns the RIGHT + TOP sides.
+         Drawing in (focus): right side up, then top leftward.
+         Drawing out (blur): top retracts first, then the right side —
+         so it unwinds in the exact reverse order, back to the start corner.
+         CSS uses the *destination* state's transition, so the appear timing
+         lives on :focus-within and the retract timing lives on the base. */
       .search-field::after {
         content: '';
         position: absolute;
@@ -241,11 +245,12 @@ const PAGE_SIZE = 24;
         height: 0;
         border-top: 1px solid var(--gallery-ink);
         border-right: 1px solid var(--gallery-ink);
-        transition: height 320ms ease, width 320ms ease 320ms;
+        /* out: width (top) first, then height (right) */
+        transition: width 320ms ease, height 320ms ease 320ms;
         pointer-events: none;
       }
-      /* Segment 2 (::before): anchored bottom-right, draws the BOTTOM leftward,
-         then the LEFT side up. */
+      /* Segment 2 (::before): anchored bottom-right, owns the BOTTOM + LEFT.
+         In: bottom leftward, then left side up. Out: left first, then bottom. */
       .search-field::before {
         content: '';
         position: absolute;
@@ -255,13 +260,21 @@ const PAGE_SIZE = 24;
         height: 0;
         border-bottom: 1px solid var(--gallery-ink);
         border-left: 1px solid var(--gallery-ink);
-        transition: width 320ms ease, height 320ms ease 320ms;
+        /* out: height (left) first, then width (bottom) */
+        transition: height 320ms ease, width 320ms ease 320ms;
         pointer-events: none;
       }
-      .search-field:focus-within::after,
+      .search-field:focus-within::after {
+        width: calc(100% + 2px);
+        height: calc(100% + 2px);
+        /* in: height (right) first, then width (top) */
+        transition: height 320ms ease, width 320ms ease 320ms;
+      }
       .search-field:focus-within::before {
         width: calc(100% + 2px);
         height: calc(100% + 2px);
+        /* in: width (bottom) first, then height (left) */
+        transition: width 320ms ease, height 320ms ease 320ms;
       }
 
       .search-icon {

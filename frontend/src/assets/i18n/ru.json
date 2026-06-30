@@ -130,6 +130,9 @@
   "gallery": {
     "searchPlaceholder": "Поиск произведений...",
     "filtersTitle": "Категории",
+    "categories": "Категории",
+    "allCategories": "Все категории",
+    "filterByCategory": "Фильтровать по категории",
     "noResults": "Нет произведений по вашим фильтрам.",
     "loadingMore": "Загрузка..."
   },

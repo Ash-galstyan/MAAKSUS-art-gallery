@@ -130,6 +130,9 @@
   "gallery": {
     "searchPlaceholder": "Որոնել ստեղծագործություններ...",
     "filtersTitle": "Կատեգորիաներ",
+    "categories": "Կատեգորիաներ",
+    "allCategories": "Բոլոր կատեգորիաները",
+    "filterByCategory": "Զտել ըստ կատեգորիայի",
     "noResults": "Ձեր ֆիլտրերին համապատասխան ստեղծագործություններ չկան.",
     "loadingMore": "Բեռնվում է..."
   },

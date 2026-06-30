@@ -130,6 +130,9 @@
   "gallery": {
     "searchPlaceholder": "Search artworks...",
     "filtersTitle": "Categories",
+    "categories": "Categories",
+    "allCategories": "All categories",
+    "filterByCategory": "Filter by category",
     "noResults": "No artworks match your filters.",
     "loadingMore": "Loading more..."
   },

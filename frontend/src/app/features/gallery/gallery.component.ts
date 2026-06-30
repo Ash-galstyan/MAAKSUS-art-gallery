@@ -25,17 +25,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   effect,
   inject,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GalleryService } from './gallery.service';
 import { CategoriesService } from './categories.service';
@@ -54,10 +51,8 @@ const PAGE_SIZE = 24;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatChipsModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
+    MatMenuModule,
     MatProgressSpinnerModule,
     ArtworkCardComponent,
     OnVisibleDirective,
@@ -65,37 +60,71 @@ const PAGE_SIZE = 24;
   ],
   template: `
     <section class="filters">
-      <div class="container">
-        <mat-form-field appearance="outline" class="search">
-          <mat-icon matPrefix>search</mat-icon>
-          <mat-label>{{ 'gallery.searchPlaceholder' | translate }}</mat-label>
+      <div class="container filters-row">
+        @if (categories().length > 0) {
+          <button
+            type="button"
+            class="cat-trigger"
+            [matMenuTriggerFor]="catMenu"
+            [attr.aria-label]="'gallery.filterByCategory' | translate"
+          >
+            <span class="cat-label">{{ 'gallery.categories' | translate }}</span>
+            @if (selectedCategoryIds().size > 0) {
+              <span class="cat-count">{{ selectedCategoryIds().size }}</span>
+            }
+            <mat-icon class="cat-caret">expand_more</mat-icon>
+          </button>
+
+          <mat-menu #catMenu="matMenu" class="cat-menu" xPosition="after">
+            <button
+              type="button"
+              mat-menu-item
+              class="cat-item"
+              [class.selected]="selectedCategoryIds().size === 0"
+              (click)="clearCategories(); $event.stopPropagation()"
+            >
+              <mat-icon class="cat-check">{{ selectedCategoryIds().size === 0 ? 'check' : '' }}</mat-icon>
+              <span>{{ 'gallery.allCategories' | translate }}</span>
+            </button>
+            @for (cat of categories(); track cat.id) {
+              <button
+                type="button"
+                mat-menu-item
+                class="cat-item"
+                [class.selected]="selectedCategoryIds().has(cat.id)"
+                (click)="toggleCategory(cat.id); $event.stopPropagation()"
+              >
+                <mat-icon class="cat-check">{{ selectedCategoryIds().has(cat.id) ? 'check' : '' }}</mat-icon>
+                <span>{{ cat.name }}</span>
+              </button>
+            }
+          </mat-menu>
+        } @else {
+          <span></span>
+        }
+
+        <div class="search-field" [class.has-value]="searchInput()">
+          <mat-icon class="search-icon">search</mat-icon>
           <input
-            matInput
+            class="search-input"
             type="search"
             [value]="searchInput()"
             (input)="onSearchInput($any($event.target).value)"
+            [attr.placeholder]="'gallery.searchPlaceholder' | translate"
+            [attr.aria-label]="'gallery.searchPlaceholder' | translate"
             autocomplete="off"
           />
           @if (searchInput()) {
-            <button matSuffix mat-icon-button aria-label="Clear" (click)="clearSearch()">
+            <button
+              type="button"
+              class="search-clear"
+              (click)="clearSearch()"
+              [attr.aria-label]="'common.close' | translate"
+            >
               <mat-icon>close</mat-icon>
             </button>
           }
-        </mat-form-field>
-
-        @if (categories().length > 0) {
-          <mat-chip-listbox
-            class="chips"
-            multiple
-            [value]="selectedCategoryIdsArray()"
-            (change)="onCategoryChipsChange($event.value)"
-            [attr.aria-label]="'gallery.filterByCategory' | translate"
-          >
-            @for (cat of categories(); track cat.id) {
-              <mat-chip-option [value]="cat.id">{{ cat.name }}</mat-chip-option>
-            }
-          </mat-chip-listbox>
-        }
+        </div>
       </div>
     </section>
 
@@ -110,7 +139,7 @@ const PAGE_SIZE = 24;
         } @else if (initialLoaded() && !loading()) {
           <div class="empty">
             <mat-icon class="empty-icon">image_not_supported</mat-icon>
-            <p>{{ 'gallery.empty' | translate }}</p>
+            <p>{{ 'gallery.noResults' | translate }}</p>
           </div>
         }
 
@@ -129,10 +158,10 @@ const PAGE_SIZE = 24;
   `,
   styles: [
     `
+      /* Short, classical sub-header: a single slim row. */
       .filters {
         background: var(--gallery-bg);
         border-bottom: 1px solid var(--gallery-line);
-        padding: 20px 0;
         position: sticky;
         top: 64px;
         z-index: 50;
@@ -143,8 +172,132 @@ const PAGE_SIZE = 24;
         margin: 0 auto;
         padding: 0 clamp(20px, 5vw, 56px);
       }
-      .search { width: 100%; max-width: 360px; }
-      .chips { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px; }
+      .filters-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 44px;
+      }
+
+      /* ── Categories dropdown trigger ──────────────────────────────────── */
+      .cat-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: none;
+        border: 0;
+        padding: 6px 0;
+        cursor: pointer;
+        color: var(--gallery-ink);
+        font: inherit;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+      .cat-trigger:hover .cat-label { text-decoration: underline; text-underline-offset: 5px; }
+      .cat-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 9px;
+        background: var(--gallery-ink);
+        color: #fff;
+        font-size: 11px;
+        letter-spacing: 0;
+      }
+      .cat-caret { font-size: 18px; width: 18px; height: 18px; }
+
+      /* ── Animated search field ────────────────────────────────────────────
+         Resting: just a bottom rule. On focus the bottom rule "comes to life"
+         and two segments draw the remaining sides outward from the
+         bottom-right corner — right→top and bottom→left — meeting at the
+         top-left to complete a full box. */
+      .search-field {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: 200px;
+        padding: 6px 8px;
+        /* The resting + "coming to life" bottom border. */
+        border-bottom: 1px solid var(--gallery-line);
+        transition: border-bottom-color 320ms ease;
+      }
+      .search-field:focus-within { border-bottom-color: var(--gallery-ink); }
+
+      /* Segment 1 (::after): anchored bottom-right, draws the RIGHT side up,
+         then the TOP leftward. */
+      .search-field::after {
+        content: '';
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 0;
+        height: 0;
+        border-top: 1px solid var(--gallery-ink);
+        border-right: 1px solid var(--gallery-ink);
+        transition: height 320ms ease, width 320ms ease 320ms;
+        pointer-events: none;
+      }
+      /* Segment 2 (::before): anchored bottom-right, draws the BOTTOM leftward,
+         then the LEFT side up. */
+      .search-field::before {
+        content: '';
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 0;
+        height: 0;
+        border-bottom: 1px solid var(--gallery-ink);
+        border-left: 1px solid var(--gallery-ink);
+        transition: width 320ms ease, height 320ms ease 320ms;
+        pointer-events: none;
+      }
+      .search-field:focus-within::after,
+      .search-field:focus-within::before {
+        width: calc(100% + 2px);
+        height: calc(100% + 2px);
+      }
+
+      .search-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: var(--gallery-muted);
+        flex: none;
+      }
+      .search-input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: none;
+        font: inherit;
+        font-size: 13px;
+        color: var(--gallery-ink);
+        padding: 2px 0;
+      }
+      .search-input::placeholder { color: var(--gallery-muted); }
+      /* Hide the native search "clear" so only our own button shows. */
+      .search-input::-webkit-search-cancel-button { display: none; }
+      .search-clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        color: var(--gallery-muted);
+        flex: none;
+      }
+      .search-clear:hover { color: var(--gallery-ink); }
+      .search-clear mat-icon { font-size: 16px; width: 16px; height: 16px; }
 
       /* Generous breathing room — wide row gaps let each piece stand alone. */
       .grid-section { padding: 56px 0 112px; }
@@ -165,30 +318,20 @@ const PAGE_SIZE = 24;
       .loading { display: flex; justify-content: center; padding: 40px; }
       .sentinel { height: 1px; }
 
-      /* Neutralise Material's accent so the only colour on the page is the art.
-         Square the chips/field corners and render selection in gallery ink. */
-      .search {
-        --mdc-outlined-text-field-container-shape: 0;
-        --mdc-outlined-text-field-focus-outline-color: var(--gallery-ink);
-        --mdc-outlined-text-field-caret-color: var(--gallery-ink);
-        --mat-form-field-focus-select-arrow-color: var(--gallery-ink);
-      }
-      .chips {
-        --mdc-chip-container-shape-radius: 0;
-        --mdc-chip-outline-color: var(--gallery-line);
-      }
-      ::ng-deep .chips .mdc-evolution-chip,
-      ::ng-deep .chips .mat-mdc-chip-focus-overlay { border-radius: 0; }
-      ::ng-deep .chips .mat-mdc-chip-selected {
-        --mdc-chip-elevated-container-color: var(--gallery-ink);
-        --mdc-chip-label-text-color: #fff;
-        --mdc-chip-with-icon-selected-icon-color: #fff;
-        --mdc-chip-selected-label-text-color: #fff;
-      }
-      ::ng-deep .chips .mat-mdc-chip-option {
-        font-size: 11px;
-        letter-spacing: 0.12em;
+      /* ── Category menu items ─────────────────────────────────────────────── */
+      ::ng-deep .cat-menu .mat-mdc-menu-item {
+        font-size: 12px;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
+        min-height: 40px;
+      }
+      ::ng-deep .cat-menu .cat-item.selected { font-weight: 600; }
+      ::ng-deep .cat-menu .cat-check {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+        color: var(--gallery-ink);
       }
     `,
   ],
@@ -208,7 +351,6 @@ export class GalleryComponent {
   private readonly searchCommitted = signal('');
 
   readonly selectedCategoryIds = signal<Set<string>>(new Set());
-  readonly selectedCategoryIdsArray = computed(() => [...this.selectedCategoryIds()]);
 
   readonly categories = signal<Category[]>([]);
 
@@ -291,12 +433,21 @@ export class GalleryComponent {
     this.syncUrl();
   }
 
-  // ─── Chips ───────────────────────────────────────────────────────────────
+  // ─── Categories dropdown ───────────────────────────────────────────────────
 
-  onCategoryChipsChange(value: string[] | string): void {
-    // mat-chip-listbox multiple mode emits an array; defensively handle string too.
-    const arr = Array.isArray(value) ? value : value ? [value] : [];
-    this.selectedCategoryIds.set(new Set(arr));
+  /** Toggle a single category in/out of the (multi-select) filter. */
+  toggleCategory(id: string): void {
+    const next = new Set(this.selectedCategoryIds());
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedCategoryIds.set(next);
+    this.syncUrl();
+  }
+
+  /** "All categories" — clear the filter. */
+  clearCategories(): void {
+    if (this.selectedCategoryIds().size === 0) return;
+    this.selectedCategoryIds.set(new Set());
     this.syncUrl();
   }
 

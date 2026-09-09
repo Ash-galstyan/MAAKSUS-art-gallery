@@ -23,6 +23,33 @@ $gallery-theme: mat.define-theme(
 html { color-scheme: light; }
 html { @include mat.all-component-themes($gallery-theme); }
 
+/**
+ * Gallery design tokens.
+ *
+ * A muted, monochrome "paper-and-ink" palette in the spirit of a real
+ * gallery's house style: near-black ink on warm white, hairline rules,
+ * a single restrained serif for display type. No saturated accents —
+ * the artwork supplies all the colour on the page.
+ */
+:root {
+  --gallery-bg: #ffffff;
+  --gallery-bg-alt: #f7f6f3;
+  --gallery-ink: #1a1a1a;
+  --gallery-muted: #8a857d;
+  --gallery-line: #e6e3dd;
+  --gallery-mat: #f1efea; /* image matte / placeholder */
+  --gallery-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --gallery-sans: 'Inter', system-ui, sans-serif;
+}
+
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; background: #fff; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--gallery-sans);
+  background: var(--gallery-bg);
+  color: var(--gallery-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 a { color: inherit; }

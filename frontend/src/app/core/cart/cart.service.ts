@@ -75,7 +75,7 @@ export class CartService {
 
   constructor() {
     // Keep the header badge service in lock-step.
-    effect(() => this.header.setCountForHeader(this.itemCount()));
+    effect(() => this.header.setCountForHeader(this.itemCount()), { allowSignalWrites: true });
 
     // Auth transitions.
     let wasAuthed = this.auth.isAuthenticated();

@@ -41,9 +41,8 @@ import { LanguageSwitcherComponent } from '../../shared/components/language-swit
     LanguageSwitcherComponent,
   ],
   template: `
-    <mat-toolbar color="primary" class="header">
+    <mat-toolbar class="header">
       <a routerLink="/" class="brand">
-        <mat-icon>palette</mat-icon>
         <span>{{ 'common.appName' | translate }}</span>
       </a>
 
@@ -95,18 +94,33 @@ import { LanguageSwitcherComponent } from '../../shared/components/language-swit
         z-index: 100;
         display: block;
       }
-      .header { gap: 8px; }
+      .header {
+        gap: 8px;
+        background: var(--gallery-bg);
+        color: var(--gallery-ink);
+        border-bottom: 1px solid var(--gallery-line);
+        box-shadow: none;
+      }
       .brand {
         display: flex;
         align-items: center;
-        gap: 8px;
         text-decoration: none;
         color: inherit;
+        font-family: var(--gallery-serif);
+        font-size: 26px;
         font-weight: 600;
+        letter-spacing: 0.04em;
+        line-height: 1;
       }
-      .nav { margin-left: 24px; display: flex; gap: 8px; }
+      .nav { margin-left: 32px; display: flex; gap: 8px; }
+      .nav a {
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
       .spacer { flex: 1; }
-      .active { font-weight: 600; text-decoration: underline; }
+      .active { text-decoration: underline; text-underline-offset: 6px; }
     `,
   ],
 })

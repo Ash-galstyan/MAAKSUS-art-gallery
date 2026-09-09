@@ -224,8 +224,6 @@ const PAGE_SIZE = 24;
         gap: 6px;
         width: 200px;
         padding: 6px 8px;
-        /* The resting + "coming to life" bottom border. */
-        border-bottom: 1px solid var(--gallery-line);
         transition: border-bottom-color 320ms ease;
       }
       .search-field:focus-within { border-bottom-color: var(--gallery-ink); }
@@ -332,6 +330,7 @@ const PAGE_SIZE = 24;
       .sentinel { height: 1px; }
 
       /* ── Category menu items ─────────────────────────────────────────────── */
+      ::ng-deep .cat-menu.mat-mdc-menu-panel { min-width: 220px; }
       ::ng-deep .cat-menu .mat-mdc-menu-item {
         font-size: 12px;
         letter-spacing: 0.08em;

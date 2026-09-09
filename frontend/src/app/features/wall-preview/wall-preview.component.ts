@@ -357,7 +357,9 @@ export class WallPreviewComponent implements AfterViewInit {
       if (knownDefaults.has(this.frameColorHex())) {
         this.frameColorHex.set(newDefault);
       }
-    });
+    },
+    { allowSignalWrites: true }
+    );
   }
 
   ngAfterViewInit(): void {

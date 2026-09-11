@@ -26,10 +26,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ArtworkDetailService } from '../artwork-detail/artwork-detail.service';
@@ -57,10 +54,7 @@ import type { FrameOption, PrintSize } from '../../core/api-models/print-options
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
     MatCheckboxModule,
-    MatChipsModule,
     MatIconModule,
     MatProgressSpinnerModule,
     TranslatePipe,
@@ -69,166 +63,143 @@ import type { FrameOption, PrintSize } from '../../core/api-models/print-options
   ],
   template: `
     @if (loading()) {
-      <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="48"/></div>
+      <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="40"/></div>
     } @else if (!artwork()) {
       <div class="centered">
         <p>{{ 'customization.loadError' | translate }}</p>
-        <a mat-button routerLink="/">{{ 'common.back' | translate }}</a>
+        <a class="btn btn--sm" routerLink="/gallery">{{ 'common.back' | translate }}</a>
       </div>
     } @else {
-      <div class="page">
+      <div class="page wrap">
+        <nav class="crumbs">
+          <a [routerLink]="['/artwork', artwork()!.id]">{{ 'common.back' | translate }}</a>
+        </nav>
         <header class="page-header">
-          <a mat-button [routerLink]="['/artwork', artwork()!.id]">
-            <mat-icon>arrow_back</mat-icon>
-            {{ 'common.back' | translate }}
-          </a>
-          <h1>{{ 'customization.title' | translate }}</h1>
+          <span class="eyebrow">{{ artwork()!.title }} · {{ artwork()!.artist.name }}</span>
+          <h1 class="display-2">{{ 'customization.title' | translate }}</h1>
         </header>
 
         <div class="layout">
           <!-- ─── Preview ─────────────────────────────────────────────── -->
           <section class="preview">
-            <div class="canvas-wrap">
+            <div class="canvas-wrap ph">
               <canvas #previewCanvas></canvas>
             </div>
-            <p class="preview-label">
-              {{ artwork()!.title }} · {{ artwork()!.artist.name }}
-            </p>
           </section>
 
           <!-- ─── Configurator ────────────────────────────────────────── -->
           <aside class="config">
             <!-- Print size -->
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>{{ 'customization.size.title' | translate }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                @if (sizes().length === 0) {
-                  <p class="muted">{{ 'customization.noOptions' | translate }}</p>
-                } @else {
-                  <div class="size-grid">
-                    @for (s of sizes(); track s.id) {
-                      <button
-                        type="button"
-                        class="size-card"
-                        [class.active]="selectedSize()?.id === s.id"
-                        (click)="selectedSizeId.set(s.id)"
-                      >
-                        <div class="size-label">{{ s.label }}</div>
-                        <div class="size-dims">{{ s.widthCm }} × {{ s.heightCm }} cm</div>
-                      </button>
-                    }
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Frame -->
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>{{ 'customization.frame.title' | translate }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="frames-row">
-                  <button
-                    type="button"
-                    class="frame-card"
-                    [class.active]="selectedFrameId() === null"
-                    (click)="selectedFrameId.set(null)"
-                  >
-                    <div class="frame-swatch no-frame"><mat-icon>block</mat-icon></div>
-                    <span>{{ 'customization.frame.none' | translate }}</span>
-                  </button>
-                  @for (f of frames(); track f.id) {
+            <section class="block">
+              <h2 class="block__title">{{ 'customization.size.title' | translate }}</h2>
+              @if (sizes().length === 0) {
+                <p class="muted">{{ 'customization.noOptions' | translate }}</p>
+              } @else {
+                <div class="size-grid">
+                  @for (s of sizes(); track s.id) {
                     <button
                       type="button"
-                      class="frame-card"
-                      [class.active]="selectedFrameId() === f.id"
-                      (click)="selectedFrameId.set(f.id)"
+                      class="opt size-card"
+                      [class.active]="selectedSize()?.id === s.id"
+                      (click)="selectedSizeId.set(s.id)"
                     >
-                      <div class="frame-swatch" [style.background]="f.colorHex"></div>
-                      <span>{{ f.label }}</span>
-                      @if (f.additionalPrice > 0) {
-                        <span class="frame-extra">+{{ f.additionalPrice | price }}</span>
-                      }
+                      <span class="size-label">{{ s.label }}</span>
+                      <span class="size-dims">{{ s.widthCm }} × {{ s.heightCm }} cm</span>
                     </button>
                   }
                 </div>
-                <mat-checkbox
-                  class="matte-toggle"
-                  [checked]="withMatte()"
-                  (change)="withMatte.set($event.checked)"
+              }
+            </section>
+
+            <!-- Frame -->
+            <section class="block">
+              <h2 class="block__title">{{ 'customization.frame.title' | translate }}</h2>
+              <div class="frames-row">
+                <button
+                  type="button"
+                  class="opt frame-card"
+                  [class.active]="selectedFrameId() === null"
+                  (click)="selectedFrameId.set(null)"
                 >
-                  {{ 'customization.frame.matte' | translate }}
-                  <span class="muted small">(+{{ matteAmount() | price }})</span>
-                </mat-checkbox>
-              </mat-card-content>
-            </mat-card>
+                  <span class="frame-swatch no-frame"><mat-icon>block</mat-icon></span>
+                  <span>{{ 'customization.frame.none' | translate }}</span>
+                </button>
+                @for (f of frames(); track f.id) {
+                  <button
+                    type="button"
+                    class="opt frame-card"
+                    [class.active]="selectedFrameId() === f.id"
+                    (click)="selectedFrameId.set(f.id)"
+                  >
+                    <span class="frame-swatch" [style.background]="f.colorHex"></span>
+                    <span>{{ f.label }}</span>
+                    @if (f.additionalPrice > 0) {
+                      <span class="frame-extra">+{{ f.additionalPrice | price }}</span>
+                    }
+                  </button>
+                }
+              </div>
+              <mat-checkbox
+                class="matte-toggle"
+                [checked]="withMatte()"
+                (change)="withMatte.set($event.checked)"
+              >
+                {{ 'customization.frame.matte' | translate }}
+                <span class="muted small">(+{{ matteAmount() | price }})</span>
+              </mat-checkbox>
+            </section>
 
             <!-- Quantity + price + CTA -->
-            <mat-card>
-              <mat-card-content class="summary">
-                <div class="qty-row">
-                  <span>{{ 'customization.quantity' | translate }}</span>
-                  <div class="qty-stepper">
-                    <button mat-icon-button (click)="decQty()" [disabled]="quantity() <= 1"
-                            aria-label="Decrease quantity">
-                      <mat-icon>remove</mat-icon>
-                    </button>
-                    <span class="qty-value">{{ quantity() }}</span>
-                    <button mat-icon-button (click)="incQty()" [disabled]="quantity() >= 20"
-                            aria-label="Increase quantity">
-                      <mat-icon>add</mat-icon>
-                    </button>
-                  </div>
+            <section class="block summary">
+              <div class="qty-row">
+                <span class="block__title">{{ 'customization.quantity' | translate }}</span>
+                <div class="qty">
+                  <button type="button" (click)="decQty()" [disabled]="quantity() <= 1"
+                          aria-label="Decrease quantity">−</button>
+                  <span class="qty-val">{{ quantity() }}</span>
+                  <button type="button" (click)="incQty()" [disabled]="quantity() >= 20"
+                          aria-label="Increase quantity">+</button>
                 </div>
+              </div>
 
-                <dl class="breakdown">
+              <dl class="breakdown">
+                <div>
+                  <dt>{{ 'customization.price.print' | translate }}</dt>
+                  <dd>{{ price().baseLine | price }}</dd>
+                </div>
+                @if (price().frameLine > 0) {
                   <div>
-                    <dt>{{ 'customization.price.print' | translate }}</dt>
-                    <dd>{{ price().baseLine | price }}</dd>
+                    <dt>{{ 'customization.price.frame' | translate }}</dt>
+                    <dd>{{ price().frameLine | price }}</dd>
                   </div>
-                  @if (price().frameLine > 0) {
-                    <div>
-                      <dt>{{ 'customization.price.frame' | translate }}</dt>
-                      <dd>{{ price().frameLine | price }}</dd>
-                    </div>
-                  }
-                  @if (price().matteLine > 0) {
-                    <div>
-                      <dt>{{ 'customization.price.matte' | translate }}</dt>
-                      <dd>{{ price().matteLine | price }}</dd>
-                    </div>
-                  }
+                }
+                @if (price().matteLine > 0) {
+                  <div>
+                    <dt>{{ 'customization.price.matte' | translate }}</dt>
+                    <dd>{{ price().matteLine | price }}</dd>
+                  </div>
+                }
+                <div class="total">
+                  <dt>{{ 'customization.price.unit' | translate }}</dt>
+                  <dd>{{ price().unitPrice | price }}</dd>
+                </div>
+                @if (quantity() > 1) {
                   <div class="total">
-                    <dt>{{ 'customization.price.unit' | translate }}</dt>
-                    <dd>{{ price().unitPrice | price }}</dd>
+                    <dt>{{ 'customization.price.total' | translate }}</dt>
+                    <dd>{{ totalLine() | price }}</dd>
                   </div>
-                  @if (quantity() > 1) {
-                    <div class="total">
-                      <dt>{{ 'customization.price.total' | translate }}</dt>
-                      <dd>{{ totalLine() | price }}</dd>
-                    </div>
-                  }
-                </dl>
+                }
+              </dl>
 
-                <button
-                  mat-flat-button
-                  color="primary"
-                  class="add-btn"
-                  [disabled]="!canAddToCart() || adding()"
-                  (click)="onAddToCart()"
-                >
-                  @if (adding()) {
-                    <mat-progress-spinner mode="indeterminate" diameter="20"/>
-                  } @else {
-                    <mat-icon>add_shopping_cart</mat-icon>
-                    {{ 'customization.addToCart' | translate }}
-                  }
-                </button>
-              </mat-card-content>
-            </mat-card>
+              <button
+                type="button"
+                class="btn btn--solid btn--block add-btn"
+                [disabled]="!canAddToCart() || adding()"
+                (click)="onAddToCart()"
+              >
+                {{ (adding() ? 'common.saving' : 'customization.addToCart') | translate }}
+              </button>
+            </section>
           </aside>
         </div>
       </div>
@@ -238,74 +209,91 @@ import type { FrameOption, PrintSize } from '../../core/api-models/print-options
     `
       .centered {
         min-height: 50vh; display: flex; flex-direction: column;
-        align-items: center; justify-content: center; gap: 12px;
+        align-items: center; justify-content: center; gap: 16px;
       }
-      .page { max-width: 1280px; margin: 0 auto; padding: 24px; }
-      .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-      .page-header h1 { font-size: 24px; margin: 0; }
+      .page { padding-block: clamp(24px, 4vw, 44px) clamp(56px, 9vw, 112px); }
+      .crumbs {
+        font-size: 11px; font-weight: 600; letter-spacing: var(--tracking-label);
+        text-transform: uppercase; color: var(--c-muted); margin-bottom: 20px;
+      }
+      .crumbs a:hover { color: var(--c-ink); }
+      .page-header { margin-bottom: clamp(28px, 4vw, 48px); }
+      .page-header h1 { margin-top: 12px; }
 
-      .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr); gap: 32px; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr); gap: clamp(32px, 5vw, 64px); align-items: start; }
       @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
 
-      .preview { display: flex; flex-direction: column; gap: 12px; }
+      .preview { position: sticky; top: calc(var(--header-h) + 24px); }
       .canvas-wrap {
-        background: #eee; border-radius: 8px; padding: 32px;
+        padding: clamp(24px, 5vw, 56px);
         display: flex; align-items: center; justify-content: center;
         aspect-ratio: 4 / 3;
       }
+      .canvas-wrap.ph::after { inset: 0; border: 0; }
       .canvas-wrap canvas {
+        position: relative; z-index: 1;
         max-width: 100%; max-height: 100%;
-        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.15));
+        filter: drop-shadow(0 18px 36px rgba(20, 18, 15, 0.22));
       }
-      .preview-label { text-align: center; color: rgba(0,0,0,0.6); margin: 0; }
 
-      .config { display: flex; flex-direction: column; gap: 16px; }
-
-      .size-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-      .size-card {
-        padding: 12px; border-radius: 8px; border: 2px solid #e0e0e0;
-        background: white; cursor: pointer; text-align: left;
-        display: flex; flex-direction: column; gap: 4px;
+      .config { display: flex; flex-direction: column; gap: clamp(28px, 4vw, 44px); }
+      .block { border-top: 1px solid var(--c-line); padding-top: 20px; }
+      .block__title {
+        font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); text-transform: uppercase;
+        color: var(--c-muted); margin: 0 0 16px;
       }
-      .size-card:hover { border-color: #b39ddb; }
-      .size-card.active { border-color: #673ab7; background: #f5f0ff; }
-      .size-label { font-weight: 600; }
-      .size-dims { font-size: 12px; color: rgba(0,0,0,0.6); }
 
-      .frames-row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .opt {
+        border: 1px solid var(--c-line-strong); background: var(--c-paper);
+        cursor: pointer; text-align: left; transition: border-color 140ms ease, background-color 140ms ease;
+      }
+      .opt:hover { border-color: var(--c-ink); }
+      .opt.active { border-color: var(--c-ink); background: var(--c-paper-warm); }
+
+      .size-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+      .size-card { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+      .size-label { font-size: 13px; font-weight: 600; }
+      .size-dims { font-size: 11px; color: var(--c-muted); letter-spacing: 0.02em; }
+
+      .frames-row { display: flex; gap: 10px; flex-wrap: wrap; }
       .frame-card {
-        padding: 8px; border-radius: 8px; border: 2px solid #e0e0e0;
-        background: white; cursor: pointer;
-        display: flex; flex-direction: column; align-items: center; gap: 6px;
-        min-width: 80px;
+        padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 7px;
+        min-width: 84px; font-size: 11px; letter-spacing: 0.04em;
       }
-      .frame-card:hover { border-color: #b39ddb; }
-      .frame-card.active { border-color: #673ab7; background: #f5f0ff; }
       .frame-swatch {
-        width: 40px; height: 40px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);
+        width: 40px; height: 40px; border: 1px solid var(--c-line-strong);
       }
       .frame-swatch.no-frame {
-        background: #f4f4f4; display: flex; align-items: center; justify-content: center;
-        color: rgba(0,0,0,0.4);
+        background: var(--c-paper-warm); display: flex; align-items: center; justify-content: center;
+        color: var(--c-muted);
       }
-      .frame-extra { font-size: 11px; color: rgba(0,0,0,0.5); }
-      .matte-toggle { margin-top: 16px; }
-      .muted { color: rgba(0,0,0,0.55); }
+      .frame-swatch.no-frame mat-icon { font-size: 18px; width: 18px; height: 18px; }
+      .frame-extra { font-size: 10px; color: var(--c-muted); }
+      .matte-toggle { margin-top: 18px; }
+      .muted { color: var(--c-muted); }
       .small { font-size: 12px; }
 
-      .summary { display: flex; flex-direction: column; gap: 16px; }
+      .summary { display: flex; flex-direction: column; gap: 20px; }
       .qty-row { display: flex; align-items: center; justify-content: space-between; }
-      .qty-stepper { display: flex; align-items: center; gap: 4px; }
-      .qty-value { min-width: 24px; text-align: center; font-weight: 600; }
+      .qty-row .block__title { margin: 0; }
+      .qty { display: inline-flex; align-items: center; border: 1px solid var(--c-line-strong); }
+      .qty button {
+        width: 34px; height: 34px; border: 0; background: none; cursor: pointer;
+        font-size: 15px; color: var(--c-ink);
+      }
+      .qty button:disabled { opacity: 0.3; cursor: not-allowed; }
+      .qty button:hover:not(:disabled) { background: var(--c-paper-alt); }
+      .qty-val { min-width: 34px; text-align: center; font-size: 13px; font-weight: 600; }
 
-      .breakdown { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 0; }
+      .breakdown { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; margin: 0; }
       .breakdown > div { display: contents; }
-      .breakdown dt { color: rgba(0,0,0,0.7); font-size: 14px; }
-      .breakdown dd { margin: 0; font-size: 14px; }
-      .breakdown .total dt { font-weight: 600; }
-      .breakdown .total dd { font-weight: 700; }
+      .breakdown dt { color: var(--c-muted); font-size: 13px; }
+      .breakdown dd { margin: 0; font-size: 13px; }
+      .breakdown .total dt { color: var(--c-ink); font-weight: 600; }
+      .breakdown .total dd { font-family: var(--font-display); font-size: 1.05rem; }
 
-      .add-btn { height: 48px; font-size: 15px; gap: 8px; }
+      .add-btn { margin-top: 4px; }
     `,
   ],
 })
@@ -384,7 +372,7 @@ export class CustomizationComponent implements AfterViewInit {
   private async bootstrap(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('artworkId');
     if (!id) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/gallery']);
       return;
     }
     this.loading.set(true);

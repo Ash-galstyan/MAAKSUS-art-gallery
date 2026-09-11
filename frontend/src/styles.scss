@@ -1,4 +1,22 @@
 // frontend/src/styles.scss
+/**
+ * Global stylesheet — design system foundation.
+ *
+ * The storefront's visual direction (see WIKI.md §7): contemporary European
+ * gallery meets high-end interior magazine. Warm paper-and-ink palette, a
+ * high-contrast serif for display type, a letter-spaced sans for UI and
+ * microcopy, hairline rules, generous whitespace. No rounded cards, no
+ * gradients, no saturated accent — the artwork supplies the colour.
+ *
+ * Structure:
+ *   1. Angular Material theme, re-pointed to the paper/ink palette so
+ *      form fields / menus / dialogs match the storefront.
+ *   2. Design tokens (`--c-*`, `--font-*`, rhythm) on :root, plus the
+ *      legacy `--gallery-*` aliases the existing feature components read.
+ *   3. Base element resets.
+ *   4. Shared primitives (`.wrap`, `.eyebrow`, `.btn`, `.section`…) used
+ *      across the storefront so pages stay consistent.
+ */
 @use '@angular/material' as mat;
 
 @include mat.core();
@@ -8,11 +26,11 @@ $gallery-theme: mat.define-theme(
     color: (
       theme-type: light,
       primary: mat.$violet-palette,
-      tertiary: mat.$rose-palette,
+      tertiary: mat.$violet-palette,
     ),
     typography: (
       plain-family: 'Inter, system-ui, sans-serif',
-      brand-family: 'Inter, system-ui, sans-serif',
+      brand-family: '"Playfair Display", Georgia, serif',
     ),
     density: (
       scale: 0,
@@ -24,32 +42,232 @@ html { color-scheme: light; }
 html { @include mat.all-component-themes($gallery-theme); }
 
 /**
- * Gallery design tokens.
- *
- * A muted, monochrome "paper-and-ink" palette in the spirit of a real
- * gallery's house style: near-black ink on warm white, hairline rules,
- * a single restrained serif for display type. No saturated accents —
- * the artwork supplies all the colour on the page.
+ * Re-point Material's M3 system colours to the paper/ink palette. This keeps
+ * the prebuilt palette's tonal structure (so components don't break) while
+ * removing the violet from buttons, focus rings, form-field accents, etc.
  */
 :root {
-  --gallery-bg: #ffffff;
-  --gallery-bg-alt: #f7f6f3;
-  --gallery-ink: #1a1a1a;
-  --gallery-muted: #8a857d;
-  --gallery-line: #e6e3dd;
-  --gallery-mat: #f1efea; /* image matte / placeholder */
-  --gallery-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --gallery-sans: 'Inter', system-ui, sans-serif;
+  --mat-sys-primary: #2b2520;
+  --mat-sys-on-primary: #faf7f2;
+  --mat-sys-primary-container: #e9e3d8;
+  --mat-sys-on-primary-container: #2b2520;
+  --mat-sys-secondary: #6f665a;
+  --mat-sys-on-secondary: #faf7f2;
+  --mat-sys-secondary-container: #ece5db;
+  --mat-sys-on-secondary-container: #2b2520;
+  --mat-sys-tertiary: #6f665a;
+  --mat-sys-on-tertiary: #faf7f2;
+  --mat-sys-tertiary-container: #ece5db;
+  --mat-sys-on-tertiary-container: #2b2520;
+  --mat-sys-surface-tint: #2b2520;
+  --mat-sys-error: #8f2f2f;
+  --mat-sys-outline: #c9c1b3;
+  --mat-sys-outline-variant: #e2ddd3;
 }
 
+/**
+ * Design tokens.
+ */
+:root {
+  /* ── Palette: warm paper & ink ─────────────────────────────────────────── */
+  --c-paper:         #ffffff;   /* base page */
+  --c-paper-warm:    #faf7f1;   /* warm off-white sections */
+  --c-paper-alt:     #f2eee6;   /* utility bar, alternating bands */
+  --c-sand:          #e9e2d5;   /* subtle warm tint blocks */
+  --c-stone:         #d9d0c1;   /* image placeholder / matte */
+  --c-ink:           #24211c;   /* primary text; dark surfaces */
+  --c-ink-soft:      #3d382f;   /* dark surface, alt */
+  --c-muted:         #877e71;   /* secondary text, captions */
+  --c-line:          #e3ded4;   /* hairline rules */
+  --c-line-strong:   #cbc3b4;   /* stronger rule / input border */
+  --c-on-dark:       #f5f1e8;   /* text on ink surfaces */
+  --c-on-dark-muted: #b7afa1;   /* secondary text on ink surfaces */
+  --c-focus:         #6f5b3e;   /* focus ring — warm bronze */
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Letter-spaced uppercase label — nav, buttons, eyebrows, captions. */
+  --tracking-label: 0.16em;
+
+  /* ── Layout rhythm ────────────────────────────────────────────────────── */
+  --wrap:        1360px;   /* max content width */
+  --wrap-narrow: 940px;
+  --gutter:      clamp(20px, 5vw, 64px);
+  --section-y:   clamp(64px, 9vw, 132px);
+  --header-h:    112px;    /* main header row height (utility bar excluded) */
+
+  /* ── Legacy aliases — existing feature components read these ───────────── */
+  --gallery-bg:     var(--c-paper);
+  --gallery-bg-alt: var(--c-paper-warm);
+  --gallery-ink:    var(--c-ink);
+  --gallery-muted:  var(--c-muted);
+  --gallery-line:   var(--c-line);
+  --gallery-mat:    var(--c-stone);
+  --gallery-serif:  var(--font-display);
+  --gallery-sans:   var(--font-sans);
+}
+
+/* ── Base resets ───────────────────────────────────────────────────────── */
 * { box-sizing: border-box; }
+
 html, body {
   margin: 0;
   padding: 0;
-  font-family: var(--gallery-sans);
-  background: var(--gallery-bg);
-  color: var(--gallery-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  background: var(--c-paper);
+  color: var(--c-ink);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
-a { color: inherit; }
+
+a { color: inherit; text-decoration: none; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: 0.005em;
+  margin: 0;
+  color: var(--c-ink);
+}
+
+img { max-width: 100%; display: block; }
+
+::selection { background: var(--c-ink); color: var(--c-paper); }
+
+:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+/* ── Shared primitives ─────────────────────────────────────────────────── */
+
+/* Centred content column. */
+.wrap {
+  width: 100%;
+  max-width: var(--wrap);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.wrap--narrow { max-width: var(--wrap-narrow); }
+
+/* Vertical section rhythm. */
+.section { padding-block: var(--section-y); }
+.section--tight { padding-block: clamp(44px, 6vw, 76px); }
+.section--warm { background: var(--c-paper-warm); }
+.section--sand { background: var(--c-sand); }
+.section--ink { background: var(--c-ink); color: var(--c-on-dark); }
+.section--ink h1, .section--ink h2, .section--ink h3 { color: var(--c-on-dark); }
+
+/* Uppercase letter-spaced caption sitting above a heading. */
+.eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--c-muted);
+  margin-bottom: 18px;
+}
+.section--ink .eyebrow { color: var(--c-on-dark-muted); }
+
+/* Display headings. */
+.display-1 { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 1.04; }
+.display-2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(2rem, 4vw, 3rem);   line-height: 1.1; }
+.display-3 { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.5rem, 2.6vw, 2rem); line-height: 1.15; }
+
+/* Lead paragraph under a heading. */
+.lead {
+  font-size: clamp(1rem, 1.2vw, 1.125rem);
+  line-height: 1.7;
+  color: var(--c-muted);
+  max-width: 56ch;
+}
+.section--ink .lead { color: var(--c-on-dark-muted); }
+
+/* Hairline rule. */
+.rule { border: 0; border-top: 1px solid var(--c-line); margin: 0; }
+
+/*
+ * Buttons. Squared, uppercase, letter-spaced. Three surfaces:
+ *   .btn            → outline on paper (default)
+ *   .btn--solid     → filled ink on paper
+ *   .btn--on-dark   → outline on an ink surface
+ *   .btn--solid-light → filled paper on an ink surface
+ */
+.btn {
+  --btn-fg: var(--c-ink);
+  --btn-bg: transparent;
+  --btn-bd: var(--c-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 30px;
+  min-height: 50px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-bd);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+  white-space: nowrap;
+}
+.btn:hover { --btn-bg: var(--c-ink); --btn-fg: var(--c-paper); --btn-bd: var(--c-ink); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn--solid { --btn-fg: var(--c-paper); --btn-bg: var(--c-ink); --btn-bd: var(--c-ink); }
+.btn--solid:hover { --btn-bg: transparent; --btn-fg: var(--c-ink); }
+
+.btn--on-dark { --btn-fg: var(--c-on-dark); --btn-bd: rgba(245, 241, 232, 0.55); }
+.btn--on-dark:hover { --btn-bg: var(--c-on-dark); --btn-fg: var(--c-ink); --btn-bd: var(--c-on-dark); }
+
+.btn--solid-light { --btn-fg: var(--c-ink); --btn-bg: var(--c-paper-warm); --btn-bd: var(--c-paper-warm); }
+.btn--solid-light:hover { --btn-bg: transparent; --btn-fg: var(--c-on-dark); --btn-bd: rgba(245,241,232,0.55); }
+
+.btn--sm { min-height: 42px; padding: 11px 22px; }
+.btn--block { display: flex; width: 100%; }
+
+/* Quiet text link with an underline that animates in. */
+.link-underline {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--c-ink);
+  padding-bottom: 3px;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size 220ms ease;
+}
+.link-underline:hover { background-size: 0 1px; }
+.section--ink .link-underline { color: var(--c-on-dark); }
+
+/* Image placeholder — a warm stone block with a faint frame. Used until real
+   art-directed photography is supplied. */
+.ph {
+  background: var(--c-stone);
+  position: relative;
+}
+.ph::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(36, 33, 28, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

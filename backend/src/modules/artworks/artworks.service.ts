@@ -24,11 +24,46 @@ import type {
 
 type ListQuery = z.infer<typeof listArtworksQuerySchema>;
 
-export async function listForLocale(query: ListQuery, locale: LocaleCode) {
-  const where: Prisma.ArtworkWhereInput = {
+/** Which "physical dimensions" bucket a piece falls in. Null dims → unknown. */
+export function deriveOrientation(
+  widthCm: number | null | undefined,
+  heightCm: number | null | undefined,
+): string | null {
+  if (widthCm == null || heightCm == null) return null;
+  if (widthCm > heightCm) return 'landscape';
+  if (heightCm > widthCm) return 'portrait';
+  return 'square';
+}
+
+/** How recent an artwork must be to count as a "new arrival". */
+const NEW_ARRIVAL_DAYS = 90;
+
+const SORT_ORDER_BY: Record<ListQuery['sort'], Prisma.ArtworkOrderByWithRelationInput[]> = {
+  newest: [{ createdAt: 'desc' }, { id: 'desc' }],
+  'price-asc': [{ basePrice: 'asc' }, { id: 'asc' }],
+  'price-desc': [{ basePrice: 'desc' }, { id: 'desc' }],
+};
+
+/** Shared `where` for the public catalogue: live, purchasable, plus the
+ *  request's category + facet selection. */
+function buildListWhere(query: ListQuery, locale: LocaleCode): Prisma.ArtworkWhereInput {
+  return {
     deletedAt: null,
     isAvailable: true,
     ...(query.categoryIds?.length ? { categoryId: { in: query.categoryIds } } : {}),
+    ...(query.artistIds?.length ? { artistId: { in: query.artistIds } } : {}),
+    ...(query.orientation?.length ? { orientation: { in: query.orientation } } : {}),
+    ...(query.new
+      ? { createdAt: { gte: new Date(Date.now() - NEW_ARRIVAL_DAYS * 86_400_000) } }
+      : {}),
+    ...(query.priceMin != null || query.priceMax != null
+      ? {
+          basePrice: {
+            ...(query.priceMin != null ? { gte: query.priceMin } : {}),
+            ...(query.priceMax != null ? { lte: query.priceMax } : {}),
+          },
+        }
+      : {}),
     ...(query.search
       ? {
           translations: {
@@ -40,6 +75,10 @@ export async function listForLocale(query: ListQuery, locale: LocaleCode) {
         }
       : {}),
   };
+}
+
+export async function listForLocale(query: ListQuery, locale: LocaleCode) {
+  const where = buildListWhere(query, locale);
 
   // Cursor: skip the cursor item itself by reading id from it.
   const cursorClause: Pick<Prisma.ArtworkFindManyArgs, 'cursor' | 'skip'> = query.cursor
@@ -54,7 +93,7 @@ export async function listForLocale(query: ListQuery, locale: LocaleCode) {
       artist: { include: { translations: { where: { locale: { in: [locale, 'EN'] } } } } },
       category: { include: { translations: { where: { locale: { in: [locale, 'EN'] } } } } },
     },
-    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    orderBy: SORT_ORDER_BY[query.sort],
     take: query.limit + 1, // ask for one extra to know if there's more
     ...cursorClause,
   });
@@ -74,7 +113,7 @@ export async function listForLocale(query: ListQuery, locale: LocaleCode) {
         slug: a.slug,
         title: t?.title ?? a.slug,
         artist: { id: a.artist.id, name: artistT?.name ?? a.artist.slug },
-        category: { id: a.category.id, name: categoryT?.name ?? a.category.slug },
+        category: { id: a.category.id, slug: a.category.slug, name: categoryT?.name ?? a.category.slug },
         basePrice: Number(a.basePrice),
         thumbnailPath: primary?.thumbnailPath ?? null,
         mediumPath: primary?.mediumPath ?? null,
@@ -83,6 +122,54 @@ export async function listForLocale(query: ListQuery, locale: LocaleCode) {
       };
     }),
     nextCursor,
+  };
+}
+
+/**
+ * Facet options for the gallery filter panel — the artists that have live
+ * work (with counts), the min/max `basePrice`, and which orientation buckets
+ * are populated. Scoped to the public catalogue (live + available), not to the
+ * caller's current filter selection.
+ */
+export async function getFacetsForLocale(locale: LocaleCode) {
+  const baseWhere = { deletedAt: null, isAvailable: true } as const;
+
+  const [artists, priceAgg, orientationGroups] = await Promise.all([
+    prisma.artist.findMany({
+      where: { artworks: { some: baseWhere } },
+      include: {
+        translations: { where: { locale: { in: [locale, 'EN'] } } },
+        _count: { select: { artworks: { where: baseWhere } } },
+      },
+    }),
+    prisma.artwork.aggregate({
+      where: baseWhere,
+      _min: { basePrice: true },
+      _max: { basePrice: true },
+    }),
+    prisma.artwork.groupBy({
+      by: ['orientation'],
+      where: { ...baseWhere, orientation: { not: null } },
+      _count: true,
+    }),
+  ]);
+
+  return {
+    artists: artists
+      .map((a) => ({
+        id: a.id,
+        slug: a.slug,
+        name: pickTranslation(a.translations, locale)?.name ?? a.slug,
+        count: a._count.artworks,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    priceRange: {
+      min: priceAgg._min.basePrice ? Number(priceAgg._min.basePrice) : 0,
+      max: priceAgg._max.basePrice ? Number(priceAgg._max.basePrice) : 0,
+    },
+    orientations: orientationGroups
+      .map((g) => ({ key: g.orientation as string, count: g._count }))
+      .sort((a, b) => a.key.localeCompare(b.key)),
   };
 }
 
@@ -121,7 +208,7 @@ export async function getByIdForLocale(id: string, locale: LocaleCode) {
       bio: artistT?.bio ?? null,
       portraitPath: a.artist.portraitPath,
     },
-    category: { id: a.category.id, name: categoryT?.name ?? a.category.slug },
+    category: { id: a.category.id, slug: a.category.slug, name: categoryT?.name ?? a.category.slug },
     images: a.images.map((img) => ({
       id: img.id,
       originalPath: img.originalPath,
@@ -161,6 +248,7 @@ export async function create(input: z.infer<typeof createArtworkSchema>) {
       medium: input.medium ?? null,
       widthCm: input.widthCm ?? null,
       heightCm: input.heightCm ?? null,
+      orientation: deriveOrientation(input.widthCm, input.heightCm),
       basePrice: input.basePrice,
       isAvailable: input.isAvailable ?? true,
       translations: {
@@ -181,6 +269,21 @@ export async function update(id: string, input: z.infer<typeof updateArtworkSche
   const existing = await prisma.artwork.findFirst({ where: { id, deletedAt: null } });
   if (!existing) throw HttpError.notFound('Artwork not found', 'ARTWORK_NOT_FOUND');
 
+  // Effective dimensions after this update — input value if supplied, else
+  // what's already stored — so `orientation` stays consistent.
+  const effWidth =
+    input.widthCm !== undefined
+      ? input.widthCm
+      : existing.widthCm != null
+        ? Number(existing.widthCm)
+        : null;
+  const effHeight =
+    input.heightCm !== undefined
+      ? input.heightCm
+      : existing.heightCm != null
+        ? Number(existing.heightCm)
+        : null;
+
   return prisma.$transaction(async (tx) => {
     if (input.slug && input.slug !== existing.slug) {
       const taken = await tx.artwork.findUnique({ where: { slug: input.slug } });
@@ -196,6 +299,7 @@ export async function update(id: string, input: z.infer<typeof updateArtworkSche
         medium: input.medium ?? undefined,
         widthCm: input.widthCm ?? undefined,
         heightCm: input.heightCm ?? undefined,
+        orientation: deriveOrientation(effWidth, effHeight),
         basePrice: input.basePrice ?? undefined,
         isAvailable: input.isAvailable ?? undefined,
       },

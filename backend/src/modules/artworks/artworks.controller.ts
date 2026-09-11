@@ -1,8 +1,9 @@
 // backend/src/modules/artworks/artworks.controller.ts
 /**
  * Endpoints (under /api/artworks):
- *   GET    /                            public list with chip-filter + search + cursor
+ *   GET    /                            public list — category + facets + sort + search + cursor
  *                                       → { data: [...], nextCursor: string | null }
+ *   GET    /facets                      public filter-panel options (artists, price range, orientations)
  *   GET    /:id                         public detail
  *   GET    /admin                       admin full list
  *   POST   /                            admin create (JSON only — images via separate endpoint)
@@ -23,6 +24,10 @@ export async function list(req: Request, res: Response) {
 
 export async function detail(req: Request, res: Response) {
   res.json({ data: await service.getByIdForLocale(req.params.id, req.locale) });
+}
+
+export async function facets(req: Request, res: Response) {
+  res.json({ data: await service.getFacetsForLocale(req.locale) });
 }
 
 export async function listAdmin(_req: Request, res: Response) {

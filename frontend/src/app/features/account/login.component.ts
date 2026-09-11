@@ -12,11 +12,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth/auth.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
@@ -28,66 +26,71 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule,
     TranslatePipe,
   ],
   template: `
     <div class="page">
-      <mat-card class="auth-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'auth.login.title' | translate }}</mat-card-title>
-          <mat-card-subtitle>{{ 'auth.login.subtitle' | translate }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'auth.login.emailLabel' | translate }}</mat-label>
-              <input matInput type="email" formControlName="email" autocomplete="email" required />
-            </mat-form-field>
+      <div class="auth-card">
+        <header class="auth-head">
+          <span class="eyebrow">{{ 'auth.login.subtitle' | translate }}</span>
+          <h1 class="display-3">{{ 'auth.login.title' | translate }}</h1>
+        </header>
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'auth.login.passwordLabel' | translate }}</mat-label>
-              <input matInput [type]="hidePw() ? 'password' : 'text'" formControlName="password"
-                     autocomplete="current-password" required />
-              <button mat-icon-button matSuffix type="button" (click)="hidePw.set(!hidePw())"
-                      [attr.aria-label]="hidePw() ? 'Show password' : 'Hide password'">
-                <mat-icon>{{ hidePw() ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-            </mat-form-field>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'auth.login.emailLabel' | translate }}</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" required />
+          </mat-form-field>
 
-            <a routerLink="/account/forgot-password" class="muted-link">
-              {{ 'auth.login.forgot' | translate }}
-            </a>
-
-            <button mat-flat-button color="primary" type="submit"
-                    [disabled]="form.invalid || submitting()">
-              @if (submitting()) {
-                <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
-              } @else {
-                {{ 'auth.login.submit' | translate }}
-              }
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'auth.login.passwordLabel' | translate }}</mat-label>
+            <input matInput [type]="hidePw() ? 'password' : 'text'" formControlName="password"
+                   autocomplete="current-password" required />
+            <button mat-icon-button matSuffix type="button" (click)="hidePw.set(!hidePw())"
+                    [attr.aria-label]="hidePw() ? 'Show password' : 'Hide password'">
+              <mat-icon>{{ hidePw() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
-          </form>
+          </mat-form-field>
 
-          <p class="footer-line">
-            {{ 'auth.login.noAccount' | translate }}
-            <a routerLink="/account/register">{{ 'auth.login.createOne' | translate }}</a>
-          </p>
-        </mat-card-content>
-      </mat-card>
+          <a routerLink="/account/forgot-password" class="muted-link">
+            {{ 'auth.login.forgot' | translate }}
+          </a>
+
+          <button type="submit" class="btn btn--solid btn--block"
+                  [disabled]="form.invalid || submitting()">
+            {{ (submitting() ? 'common.loading' : 'auth.login.submit') | translate }}
+          </button>
+        </form>
+
+        <p class="footer-line">
+          {{ 'auth.login.noAccount' | translate }}
+          <a routerLink="/account/register">{{ 'auth.login.createOne' | translate }}</a>
+        </p>
+      </div>
     </div>
   `,
   styles: [
     `
-      .page { display: flex; justify-content: center; padding: 48px 16px; }
-      .auth-card { width: 100%; max-width: 420px; }
-      .form { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
-      .muted-link { font-size: 13px; color: rgba(0, 0, 0, 0.6); align-self: flex-end; }
-      .footer-line { text-align: center; margin-top: 16px; }
+      .page { display: flex; justify-content: center; padding: clamp(48px, 9vw, 112px) var(--gutter); }
+      .auth-card {
+        width: 100%; max-width: 420px;
+        border: 1px solid var(--c-line); background: var(--c-paper);
+        padding: clamp(28px, 5vw, 44px);
+      }
+      .auth-head { margin-bottom: 28px; }
+      .auth-head h1 { margin-top: 10px; }
+      .form { display: flex; flex-direction: column; gap: 14px; }
+      .form mat-form-field { width: 100%; }
+      .muted-link {
+        font-size: 12px; color: var(--c-muted); align-self: flex-end;
+        text-decoration: underline; text-underline-offset: 3px;
+      }
+      .muted-link:hover { color: var(--c-ink); }
+      .footer-line { text-align: center; margin-top: 24px; font-size: 13px; color: var(--c-muted); }
+      .footer-line a { text-decoration: underline; text-underline-offset: 3px; color: var(--c-ink); }
     `,
   ],
 })

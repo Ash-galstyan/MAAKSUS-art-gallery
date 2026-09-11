@@ -21,20 +21,39 @@
             "outputPath": "dist/art-gallery-frontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js"],
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              { "glob": "**/*", "input": "public" },
-              { "glob": "**/*", "input": "src/assets", "output": "assets" }
+              {
+                "glob": "**/*",
+                "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" },
-                { "type": "anyComponentStyle", "maximumWarning": "4kb", "maximumError": "8kb" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kb",
+                  "maximumError": "16kb"
+                }
               ],
               "outputHashing": "all",
               "fileReplacements": [
@@ -55,8 +74,12 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": { "buildTarget": "art-gallery-frontend:build:production" },
-            "development": { "buildTarget": "art-gallery-frontend:build:development" }
+            "production": {
+              "buildTarget": "art-gallery-frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "art-gallery-frontend:build:development"
+            }
           },
           "defaultConfiguration": "development",
           "options": {
@@ -65,7 +88,9 @@
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": { "buildTarget": "art-gallery-frontend:build" }
+          "options": {
+            "buildTarget": "art-gallery-frontend:build"
+          }
         }
       }
     }

@@ -18,6 +18,7 @@ const router = Router();
 const admin = [requireAuth, requireRole('ADMIN')] as const;
 
 router.get('/', validate({ query: listArtworksQuerySchema }), asyncH(ctrl.list));
+router.get('/facets', asyncH(ctrl.facets));
 router.get('/admin', ...admin, asyncH(ctrl.listAdmin));
 router.get('/:id', validate({ params: artworkParamsSchema }), asyncH(ctrl.detail));
 router.post('/', ...admin, validate({ body: createArtworkSchema }), asyncH(ctrl.create));

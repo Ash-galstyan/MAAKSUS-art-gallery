@@ -163,9 +163,6 @@ work in `backend/src` and `frontend/src` directly.
 
 ## Current state
 
-Branch `claude/funny-gauss-37re5k`, with substantial uncommitted work across the
-admin UI, gallery styling and i18n.
-
 Known open items:
 
 - Checkout order summary

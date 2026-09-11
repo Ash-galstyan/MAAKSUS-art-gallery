@@ -89,7 +89,7 @@ export class CartService {
         this._serverItems.set([]);
         this._subtotal.set(0);
       }
-    });
+    }, { allowSignalWrites: true });
 
     // If we start authenticated (page refresh while logged in), fetch the cart.
     if (this.auth.isAuthenticated()) {

@@ -91,6 +91,20 @@
           "options": {
             "buildTarget": "art-gallery-frontend:build"
           }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
+            "assets": [
+              { "glob": "**/*", "input": "public" },
+              { "glob": "**/*", "input": "src/assets", "output": "assets" }
+            ],
+            "styles": ["src/styles.scss"],
+            "scripts": []
+          }
         }
       }
     }

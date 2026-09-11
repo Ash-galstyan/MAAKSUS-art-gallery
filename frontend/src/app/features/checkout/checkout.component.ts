@@ -26,6 +26,7 @@
  *       shipping fee in the price; add as an Order field when needed.
  */
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -196,6 +197,7 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
 export class CheckoutComponent {
   private readonly fb = inject(FormBuilder);
   private readonly checkoutService = inject(CheckoutService);
+  private readonly document = inject(DOCUMENT);
   protected readonly cart = inject(CartService);
   protected readonly auth = inject(AuthService);
 
@@ -220,8 +222,11 @@ export class CheckoutComponent {
         shippingNotes: raw.shippingNotes || undefined,
       });
       // Leave Angular — go to the bank's hosted page. Don't use router; this
-      // is a full document navigation away from our SPA.
-      window.location.href = outcome.redirectUrl;
+      // is a full document navigation away from our SPA. Goes through the
+      // injected DOCUMENT (not the global `window`) so tests can stub it —
+      // assigning to the real window.location mid-test disconnects the
+      // headless browser and aborts the rest of the suite.
+      this.document.defaultView!.location.href = outcome.redirectUrl;
     } catch {
       // errorInterceptor surfaces the message.
       this.submitting.set(false);

@@ -28,16 +28,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CheckoutService } from './checkout.service';
 import { CartService } from '../../core/cart/cart.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { UploadUrlPipe } from '../../shared/pipes/upload-url.pipe';
 import { PricePipe } from '../../shared/pipes/price.pipe';
 
 @Component({
@@ -47,132 +44,152 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule,
     TranslatePipe,
+    UploadUrlPipe,
     PricePipe,
   ],
   template: `
-    <div class="page">
+    <div class="page wrap">
+      <nav class="crumbs"><a routerLink="/cart">{{ 'common.back' | translate }}</a></nav>
       <header class="page-header">
-        <a mat-button routerLink="/cart">
-          <mat-icon>arrow_back</mat-icon>
-          {{ 'common.back' | translate }}
-        </a>
-        <h1>{{ 'checkout.title' | translate }}</h1>
+        <h1 class="display-2">{{ 'checkout.title' | translate }}</h1>
       </header>
 
       <div class="layout">
         <!-- ─── Shipping form ─────────────────────────────────────────── -->
         <section class="form-section">
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>{{ 'checkout.shipping.title' | translate }}</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-                <div class="row">
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'checkout.shipping.firstName' | translate }}</mat-label>
-                    <input matInput formControlName="shippingFirstName" autocomplete="given-name" required />
-                  </mat-form-field>
-                  <mat-form-field appearance="outline">
-                    <mat-label>{{ 'checkout.shipping.lastName' | translate }}</mat-label>
-                    <input matInput formControlName="shippingLastName" autocomplete="family-name" required />
-                  </mat-form-field>
-                </div>
+          <h2 class="block__title">{{ 'checkout.shipping.title' | translate }}</h2>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+            <div class="row">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'checkout.shipping.firstName' | translate }}</mat-label>
+                <input matInput formControlName="shippingFirstName" autocomplete="given-name" required />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'checkout.shipping.lastName' | translate }}</mat-label>
+                <input matInput formControlName="shippingLastName" autocomplete="family-name" required />
+              </mat-form-field>
+            </div>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'checkout.shipping.phone' | translate }}</mat-label>
-                  <input matInput formControlName="shippingPhone" autocomplete="tel" required />
-                  <mat-hint>{{ 'checkout.shipping.phoneHint' | translate }}</mat-hint>
-                </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'checkout.shipping.phone' | translate }}</mat-label>
+              <input matInput formControlName="shippingPhone" autocomplete="tel" required />
+              <mat-hint>{{ 'checkout.shipping.phoneHint' | translate }}</mat-hint>
+            </mat-form-field>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'checkout.shipping.city' | translate }}</mat-label>
-                  <input matInput formControlName="shippingCity" autocomplete="address-level2" required />
-                </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'checkout.shipping.city' | translate }}</mat-label>
+              <input matInput formControlName="shippingCity" autocomplete="address-level2" required />
+            </mat-form-field>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'checkout.shipping.address' | translate }}</mat-label>
-                  <textarea matInput formControlName="shippingAddress" rows="2"
-                            autocomplete="street-address" required></textarea>
-                </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'checkout.shipping.address' | translate }}</mat-label>
+              <textarea matInput formControlName="shippingAddress" rows="2"
+                        autocomplete="street-address" required></textarea>
+            </mat-form-field>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'checkout.shipping.notes' | translate }}</mat-label>
-                  <textarea matInput formControlName="shippingNotes" rows="2"></textarea>
-                  <mat-hint>{{ 'checkout.shipping.notesHint' | translate }}</mat-hint>
-                </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'checkout.shipping.notes' | translate }}</mat-label>
+              <textarea matInput formControlName="shippingNotes" rows="2"></textarea>
+              <mat-hint>{{ 'checkout.shipping.notesHint' | translate }}</mat-hint>
+            </mat-form-field>
 
-                <button
-                  mat-flat-button
-                  color="primary"
-                  type="submit"
-                  class="pay-btn"
-                  [disabled]="form.invalid || submitting() || cart.items().length === 0"
-                >
-                  @if (submitting()) {
-                    <mat-progress-spinner mode="indeterminate" diameter="20"/>
-                  } @else {
-                    <mat-icon>credit_card</mat-icon>
-                    {{ 'checkout.pay' | translate }}
-                  }
-                </button>
+            <button
+              type="submit"
+              class="btn btn--solid btn--block pay-btn"
+              [disabled]="form.invalid || submitting() || cart.items().length === 0"
+            >
+              {{ (submitting() ? 'checkout.redirecting' : 'checkout.pay') | translate }}
+            </button>
 
-                <p class="pay-hint">{{ 'checkout.payHint' | translate }}</p>
-              </form>
-            </mat-card-content>
-          </mat-card>
+            <p class="pay-hint">{{ 'checkout.payHint' | translate }}</p>
+          </form>
         </section>
 
-        <!-- ─── Order summary (stub) ──────────────────────────────────── -->
+        <!-- ─── Order summary ─────────────────────────────────────────── -->
         <aside class="summary-section">
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>{{ 'checkout.summary.title' | translate }}</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <!-- TODO: render cart.items() with thumbnails, sizes, qty, totals -->
-              <div class="todo-block">
-                {{ 'checkout.summary.todoHint' | translate }}
-              </div>
-              <div class="subtotal-row">
-                <span>{{ 'cart.subtotal' | translate }}</span>
-                <span class="subtotal">{{ cart.subtotal() | price }}</span>
-              </div>
-            </mat-card-content>
-          </mat-card>
+          <div class="summary-card">
+            <h2 class="block__title">{{ 'checkout.summary.title' | translate }}</h2>
+
+            @if (cart.items().length === 0) {
+              <p class="muted">{{ 'checkout.summary.todoHint' | translate }}</p>
+            } @else {
+              <ul class="lines">
+                @for (line of cart.items(); track line.id) {
+                  <li class="line">
+                    <img class="line__thumb" [src]="line.artwork.thumbnailPath | uploadUrl"
+                         [alt]="line.artwork.title" loading="lazy" />
+                    <div class="line__info">
+                      <span class="line__title">{{ line.artwork.title }}</span>
+                      <span class="line__meta">
+                        {{ line.printSize.label }}
+                        @if (line.frameOption) { · {{ line.frameOption.label }} }
+                        @if (line.withMatte) { · {{ 'cart.matte' | translate }} }
+                      </span>
+                      <span class="line__meta">× {{ line.quantity }}</span>
+                    </div>
+                    <span class="line__total">{{ line.lineTotal | price }}</span>
+                  </li>
+                }
+              </ul>
+            }
+
+            <div class="subtotal-row">
+              <span>{{ 'cart.subtotal' | translate }}</span>
+              <span class="subtotal">{{ cart.subtotal() | price }}</span>
+            </div>
+            <p class="muted">{{ 'cart.shippingNote' | translate }}</p>
+          </div>
         </aside>
       </div>
     </div>
   `,
   styles: [
     `
-      .page { max-width: 1200px; margin: 0 auto; padding: 24px; }
-      .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-      .page-header h1 { font-size: 24px; margin: 0; }
-      .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: 24px; }
+      .page { padding-block: clamp(24px, 4vw, 44px) clamp(56px, 9vw, 112px); }
+      .crumbs {
+        font-size: 11px; font-weight: 600; letter-spacing: var(--tracking-label);
+        text-transform: uppercase; color: var(--c-muted); margin-bottom: 20px;
+      }
+      .crumbs a:hover { color: var(--c-ink); }
+      .page-header { margin-bottom: clamp(28px, 4vw, 48px); }
+      .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: clamp(32px, 5vw, 64px); align-items: start; }
       @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
-      .form { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
-      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+      .block__title {
+        font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); text-transform: uppercase;
+        color: var(--c-muted); margin: 0 0 20px;
+      }
+
+      .form { display: flex; flex-direction: column; gap: 6px; }
+      .form mat-form-field { width: 100%; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
       @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
-      .pay-btn { height: 48px; font-size: 15px; gap: 8px; margin-top: 8px; }
-      .pay-hint { font-size: 12px; color: rgba(0,0,0,0.55); margin: 8px 0 0; }
-      .summary-section mat-card { position: sticky; top: 96px; }
-      .todo-block {
-        padding: 12px; background: #fff8e1; border-radius: 4px;
-        font-size: 13px; color: #8a6d3b; margin-bottom: 16px;
+      .pay-btn { margin-top: 14px; }
+      .pay-hint { font-size: 12px; color: var(--c-muted); margin: 12px 0 0; line-height: 1.6; }
+
+      .summary-card {
+        position: sticky; top: calc(var(--header-h) + 24px);
+        border: 1px solid var(--c-line); background: var(--c-paper-warm); padding: 28px;
       }
+      .muted { color: var(--c-muted); font-size: 12px; margin: 0; }
+
+      .lines { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+      .line { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: start; }
+      .line__thumb { width: 52px; height: 64px; object-fit: cover; background: var(--c-stone); }
+      .line__info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+      .line__title { font-size: 13px; }
+      .line__meta { font-size: 11px; color: var(--c-muted); }
+      .line__total { font-size: 13px; white-space: nowrap; }
+
       .subtotal-row {
-        display: flex; justify-content: space-between; padding-top: 12px;
-        border-top: 1px solid #eee;
+        display: flex; justify-content: space-between; align-items: baseline;
+        padding-top: 16px; border-top: 1px solid var(--c-line); margin-bottom: 10px;
       }
-      .subtotal { font-weight: 700; font-size: 18px; }
+      .subtotal { font-family: var(--font-display); font-size: 1.4rem; }
     `,
   ],
 })

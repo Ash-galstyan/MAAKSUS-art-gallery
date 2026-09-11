@@ -33,11 +33,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSliderModule } from '@angular/material/slider';
 import { ArtworkDetailService } from '../artwork-detail/artwork-detail.service';
@@ -76,28 +73,23 @@ const MAX_WALL_BYTES = 15 * 1024 * 1024; // 15 MB — typical phone photo
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    MatButtonModule,
     MatButtonToggleModule,
-    MatCardModule,
     MatCheckboxModule,
-    MatIconModule,
     MatProgressSpinnerModule,
     MatSliderModule,
     TranslatePipe,
     UploadUrlPipe,
   ],
   template: `
-    <div class="page">
+    <div class="page wrap">
+      <nav class="crumbs"><a [routerLink]="['/artwork', artworkId()]">{{ 'common.back' | translate }}</a></nav>
       <header class="page-header">
-        <a mat-button [routerLink]="['/artwork', artworkId()]">
-          <mat-icon>arrow_back</mat-icon>
-          {{ 'common.back' | translate }}
-        </a>
-        <h1>{{ 'wallPreview.title' | translate }}</h1>
+        <span class="eyebrow">{{ 'wallPreview.frame.title' | translate }}</span>
+        <h1 class="display-2">{{ 'wallPreview.title' | translate }}</h1>
       </header>
 
       @if (loading()) {
-        <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="48"/></div>
+        <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="40"/></div>
       } @else if (!artwork()) {
         <div class="centered">
           <p>{{ 'wallPreview.artworkLoadError' | translate }}</p>
@@ -110,7 +102,6 @@ const MAX_WALL_BYTES = 15 * 1024 * 1024; // 15 MB — typical phone photo
               <div class="dropzone" (click)="filePicker.click()" (dragover)="$event.preventDefault()"
                    (drop)="onWallDrop($event)" role="button" tabindex="0"
                    (keydown.enter)="filePicker.click()">
-                <mat-icon class="dropzone-icon">add_photo_alternate</mat-icon>
                 <p class="dropzone-title">{{ 'wallPreview.upload.title' | translate }}</p>
                 <p class="dropzone-hint">{{ 'wallPreview.upload.hint' | translate }}</p>
               </div>
@@ -125,8 +116,7 @@ const MAX_WALL_BYTES = 15 * 1024 * 1024; // 15 MB — typical phone photo
                   (pointerleave)="onPointerUp($event)"
                 ></canvas>
               </div>
-              <button mat-stroked-button class="change-wall" (click)="resetWall()">
-                <mat-icon>swap_horiz</mat-icon>
+              <button type="button" class="btn btn--sm change-wall" (click)="resetWall()">
                 {{ 'wallPreview.changeWall' | translate }}
               </button>
             }
@@ -141,82 +131,71 @@ const MAX_WALL_BYTES = 15 * 1024 * 1024; // 15 MB — typical phone photo
 
           <!-- ─── Side panel ─────────────────────────────────────────── -->
           <aside class="controls">
-            <mat-card>
-              <mat-card-header><mat-card-title>{{ 'wallPreview.frame.title' | translate }}</mat-card-title></mat-card-header>
-              <mat-card-content>
-                <mat-button-toggle-group
-                  [value]="frameStyleId()"
-                  (change)="frameStyleId.set($event.value)"
-                  class="style-toggle"
-                  [hideSingleSelectionIndicator]="true"
-                >
-                  @for (style of frameStyleList; track style.id) {
-                    <mat-button-toggle [value]="style.id">
-                      {{ style.labelKey | translate }}
-                    </mat-button-toggle>
-                  }
-                </mat-button-toggle-group>
-
-                @if (currentStyle().id !== 'none') {
-                  <div class="swatches">
-                    @for (color of swatches; track color) {
-                      <button
-                        type="button"
-                        class="swatch"
-                        [class.active]="color === frameColorHex()"
-                        [style.background]="color"
-                        (click)="frameColorHex.set(color)"
-                        [attr.aria-label]="color"
-                      ></button>
-                    }
-                  </div>
-
-                  <mat-checkbox
-                    [checked]="withMatte()"
-                    (change)="withMatte.set($event.checked)"
-                  >
-                    {{ 'wallPreview.frame.matte' | translate }}
-                  </mat-checkbox>
+            <section class="block">
+              <h2 class="block__title">{{ 'wallPreview.frame.title' | translate }}</h2>
+              <mat-button-toggle-group
+                [value]="frameStyleId()"
+                (change)="frameStyleId.set($event.value)"
+                class="style-toggle"
+                [hideSingleSelectionIndicator]="true"
+              >
+                @for (style of frameStyleList; track style.id) {
+                  <mat-button-toggle [value]="style.id">
+                    {{ style.labelKey | translate }}
+                  </mat-button-toggle>
                 }
-              </mat-card-content>
-            </mat-card>
+              </mat-button-toggle-group>
+
+              @if (currentStyle().id !== 'none') {
+                <div class="swatches">
+                  @for (color of swatches; track color) {
+                    <button
+                      type="button"
+                      class="swatch"
+                      [class.active]="color === frameColorHex()"
+                      [style.background]="color"
+                      (click)="frameColorHex.set(color)"
+                      [attr.aria-label]="color"
+                    ></button>
+                  }
+                </div>
+
+                <mat-checkbox
+                  [checked]="withMatte()"
+                  (change)="withMatte.set($event.checked)"
+                >
+                  {{ 'wallPreview.frame.matte' | translate }}
+                </mat-checkbox>
+              }
+            </section>
 
             @if (wallImage()) {
-              <mat-card>
-                <mat-card-header><mat-card-title>{{ 'wallPreview.size.title' | translate }}</mat-card-title></mat-card-header>
-                <mat-card-content>
-                  <mat-slider
-                    [min]="minSliderWidth()"
-                    [max]="maxSliderWidth()"
-                    [step]="1"
-                    [discrete]="false"
-                    class="size-slider"
-                  >
-                    <input matSliderThumb
-                           [value]="placement().width"
-                           (valueChange)="onSliderChange($event)" />
-                  </mat-slider>
-                  <p class="hint">{{ 'wallPreview.size.hint' | translate }}</p>
-                </mat-card-content>
-              </mat-card>
+              <section class="block">
+                <h2 class="block__title">{{ 'wallPreview.size.title' | translate }}</h2>
+                <mat-slider
+                  [min]="minSliderWidth()"
+                  [max]="maxSliderWidth()"
+                  [step]="1"
+                  [discrete]="false"
+                  class="size-slider"
+                >
+                  <input matSliderThumb
+                         [value]="placement().width"
+                         (valueChange)="onSliderChange($event)" />
+                </mat-slider>
+                <p class="hint">{{ 'wallPreview.size.hint' | translate }}</p>
+              </section>
 
               <button
-                mat-flat-button
-                color="primary"
-                class="save-btn"
+                type="button"
+                class="btn btn--solid btn--block save-btn"
                 [disabled]="saving()"
                 (click)="onSave()"
               >
-                @if (saving()) {
-                  <mat-progress-spinner mode="indeterminate" diameter="20"/>
-                } @else {
-                  <mat-icon>download</mat-icon>
-                  {{ 'wallPreview.save' | translate }}
-                }
+                {{ (saving() ? 'common.saving' : 'wallPreview.save') | translate }}
               </button>
 
-              <a mat-stroked-button class="continue-btn"
-                 [routerLink]="['/customize', artworkId()]">
+              <a class="btn btn--block" [routerLink]="['/customize', artworkId()]">
                 {{ 'wallPreview.continueToBuy' | translate }}
               </a>
             }
@@ -227,21 +206,25 @@ const MAX_WALL_BYTES = 15 * 1024 * 1024; // 15 MB — typical phone photo
   `,
   styles: [
     `
-      .page { max-width: 1280px; margin: 0 auto; padding: 24px; }
-      .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-      .page-header h1 { font-size: 24px; margin: 0; }
+      .page { padding-block: clamp(24px, 4vw, 44px) clamp(56px, 9vw, 112px); }
+      .crumbs {
+        font-size: 11px; font-weight: 600; letter-spacing: var(--tracking-label);
+        text-transform: uppercase; color: var(--c-muted); margin-bottom: 20px;
+      }
+      .crumbs a:hover { color: var(--c-ink); }
+      .page-header { margin-bottom: clamp(28px, 4vw, 48px); }
+      .page-header h1 { margin-top: 12px; }
       .centered {
         min-height: 50vh; display: flex; align-items: center; justify-content: center;
       }
 
-      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: clamp(24px, 4vw, 48px); align-items: start; }
       @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
 
-      .stage-wrap { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+      .stage-wrap { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
       .stage {
-        background: #1a1a1a;
-        border-radius: 8px;
-        padding: 16px;
+        background: var(--c-ink);
+        padding: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -251,38 +234,45 @@ const MAX_WALL_BYTES = 15 * 1024 * 1024; // 15 MB — typical phone photo
         display: block;
         touch-action: none; /* critical — prevents browser scrolling during drag */
         cursor: grab;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        box-shadow: 0 18px 44px rgba(0,0,0,0.45);
       }
       .change-wall { align-self: flex-end; }
 
       .dropzone {
-        border: 2px dashed #ccc;
-        border-radius: 8px;
-        padding: 64px 24px;
+        border: 1px dashed var(--c-line-strong);
+        padding: clamp(48px, 9vw, 88px) 24px;
         text-align: center;
         cursor: pointer;
-        background: #fafafa;
+        background: var(--c-paper-warm);
         transition: border-color 200ms ease, background 200ms ease;
       }
-      .dropzone:hover, .dropzone:focus { border-color: #673ab7; background: #f5f0ff; outline: none; }
-      .dropzone-icon { font-size: 64px; width: 64px; height: 64px; color: #999; }
-      .dropzone-title { margin: 16px 0 4px; font-size: 18px; font-weight: 600; }
-      .dropzone-hint { margin: 0; font-size: 14px; color: rgba(0,0,0,0.6); }
-
-      .controls { display: flex; flex-direction: column; gap: 16px; }
-      .style-toggle { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
-
-      .swatches { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-      .swatch {
-        width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent;
-        cursor: pointer; padding: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.15) inset;
+      .dropzone:hover, .dropzone:focus { border-color: var(--c-ink); outline: none; }
+      .dropzone-title {
+        margin: 0 0 6px; font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); text-transform: uppercase;
       }
-      .swatch.active { border-color: #673ab7; transform: scale(1.1); }
+      .dropzone-hint { margin: 0; font-size: 13px; color: var(--c-muted); }
+
+      .controls { display: flex; flex-direction: column; gap: clamp(24px, 4vw, 40px); }
+      .block { border-top: 1px solid var(--c-line); padding-top: 20px; }
+      .block__title {
+        font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); text-transform: uppercase;
+        color: var(--c-muted); margin: 0 0 16px;
+      }
+      .style-toggle { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+
+      .swatches { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+      .swatch {
+        width: 30px; height: 30px; border: 1px solid var(--c-line-strong);
+        cursor: pointer; padding: 0;
+      }
+      .swatch.active { outline: 2px solid var(--c-ink); outline-offset: 2px; }
 
       .size-slider { width: 100%; }
-      .hint { font-size: 12px; color: rgba(0,0,0,0.55); margin: 0; }
+      .hint { font-size: 12px; color: var(--c-muted); margin: 4px 0 0; }
 
-      .save-btn, .continue-btn { width: 100%; height: 44px; gap: 8px; }
+      .save-btn { margin-top: 4px; }
     `,
   ],
 })

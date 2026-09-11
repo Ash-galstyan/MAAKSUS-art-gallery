@@ -18,8 +18,6 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CartService } from '../../core/cart/cart.service';
@@ -34,8 +32,6 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
     TranslatePipe,
@@ -43,8 +39,8 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
     PricePipe,
   ],
   template: `
-    <div class="page">
-      <h1 class="title">{{ 'cart.title' | translate }}</h1>
+    <div class="page wrap wrap--narrow">
+      <h1 class="title display-2">{{ 'cart.title' | translate }}</h1>
 
       @if (cart.loading()) {
         <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="40"/></div>
@@ -52,40 +48,32 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
         <!-- Guest view -->
         @if (cart.guestItems().length === 0) {
           <div class="empty">
-            <mat-icon class="empty-icon">shopping_cart</mat-icon>
             <p>{{ 'cart.empty' | translate }}</p>
-            <a mat-flat-button color="primary" routerLink="/">
-              {{ 'cart.browse' | translate }}
-            </a>
+            <a class="btn btn--sm" routerLink="/gallery">{{ 'cart.browse' | translate }}</a>
           </div>
         } @else {
-          <mat-card class="guest-card">
-            <mat-card-content>
-              <p class="guest-summary">
-                {{ 'cart.guestSummary' | translate: { count: cart.itemCount() } }}
-              </p>
-              <a mat-flat-button color="primary"
-                 [routerLink]="['/account/login']"
-                 [queryParams]="{ redirect: '/cart' }">
-                {{ 'cart.logInToCheckout' | translate }}
+          <div class="guest-card">
+            <p class="guest-summary">
+              {{ 'cart.guestSummary' | translate: { count: cart.itemCount() } }}
+            </p>
+            <a class="btn btn--solid"
+               [routerLink]="['/account/login']"
+               [queryParams]="{ redirect: '/cart' }">
+              {{ 'cart.logInToCheckout' | translate }}
+            </a>
+            <p class="guest-hint">
+              {{ 'cart.guestHint' | translate }}
+              <a class="inline-link" routerLink="/account/register" [queryParams]="{ redirect: '/cart' }">
+                {{ 'cart.signUp' | translate }}
               </a>
-              <p class="guest-hint">
-                {{ 'cart.guestHint' | translate }}
-                <a routerLink="/account/register" [queryParams]="{ redirect: '/cart' }">
-                  {{ 'cart.signUp' | translate }}
-                </a>
-              </p>
-            </mat-card-content>
-          </mat-card>
+            </p>
+          </div>
         }
       } @else if (cart.items().length === 0) {
         <!-- Authed but empty -->
         <div class="empty">
-          <mat-icon class="empty-icon">shopping_cart</mat-icon>
           <p>{{ 'cart.empty' | translate }}</p>
-          <a mat-flat-button color="primary" routerLink="/">
-            {{ 'cart.browse' | translate }}
-          </a>
+          <a class="btn btn--sm" routerLink="/gallery">{{ 'cart.browse' | translate }}</a>
         </div>
       } @else {
         <!-- Authed cart -->
@@ -109,35 +97,31 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
                   <p class="line-config">
                     <span>{{ line.printSize.label }}</span>
                     @if (line.frameOption) {
-                      <span>·</span>
+                      <span aria-hidden="true">·</span>
                       <span class="frame-chip">
                         <span class="frame-dot" [style.background]="line.frameOption.colorHex"></span>
                         {{ line.frameOption.label }}
                       </span>
                     }
                     @if (line.withMatte) {
-                      <span>·</span>
+                      <span aria-hidden="true">·</span>
                       <span>{{ 'cart.matte' | translate }}</span>
                     }
                   </p>
-                </div>
 
-                <div class="qty">
-                  <button mat-icon-button (click)="dec(line.id, line.quantity)"
-                          [disabled]="line.quantity <= 1" aria-label="Decrease">
-                    <mat-icon>remove</mat-icon>
-                  </button>
-                  <span class="qty-val">{{ line.quantity }}</span>
-                  <button mat-icon-button (click)="inc(line.id, line.quantity)"
-                          [disabled]="line.quantity >= 20" aria-label="Increase">
-                    <mat-icon>add</mat-icon>
-                  </button>
+                  <div class="qty">
+                    <button type="button" (click)="dec(line.id, line.quantity)"
+                            [disabled]="line.quantity <= 1" aria-label="Decrease">−</button>
+                    <span class="qty-val">{{ line.quantity }}</span>
+                    <button type="button" (click)="inc(line.id, line.quantity)"
+                            [disabled]="line.quantity >= 20" aria-label="Increase">+</button>
+                  </div>
                 </div>
 
                 <div class="line-total">
-                  {{ line.lineTotal | price }}
-                  <button mat-icon-button class="remove" (click)="remove(line.id)" aria-label="Remove">
-                    <mat-icon>delete_outline</mat-icon>
+                  <span>{{ line.lineTotal | price }}</span>
+                  <button type="button" class="remove" (click)="remove(line.id)" aria-label="Remove">
+                    <mat-icon>close</mat-icon>
                   </button>
                 </div>
               </li>
@@ -145,22 +129,19 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
           </ul>
 
           <aside class="summary">
-            <mat-card>
-              <mat-card-content>
-                <div class="subtotal-row">
-                  <span>{{ 'cart.subtotal' | translate }}</span>
-                  <span class="subtotal">{{ cart.subtotal() | price }}</span>
-                </div>
-                <p class="muted">{{ 'cart.shippingNote' | translate }}</p>
-                <a mat-flat-button color="primary" class="checkout-btn"
-                   routerLink="/checkout">
-                  {{ 'cart.checkout' | translate }}
-                </a>
-                <button mat-stroked-button class="clear-btn" (click)="clearAll()">
-                  {{ 'cart.clear' | translate }}
-                </button>
-              </mat-card-content>
-            </mat-card>
+            <div class="summary-card">
+              <div class="subtotal-row">
+                <span>{{ 'cart.subtotal' | translate }}</span>
+                <span class="subtotal">{{ cart.subtotal() | price }}</span>
+              </div>
+              <p class="muted">{{ 'cart.shippingNote' | translate }}</p>
+              <a class="btn btn--solid btn--block" routerLink="/checkout">
+                {{ 'cart.checkout' | translate }}
+              </a>
+              <button type="button" class="btn btn--block clear-btn" (click)="clearAll()">
+                {{ 'cart.clear' | translate }}
+              </button>
+            </div>
           </aside>
         </div>
       }
@@ -168,72 +149,93 @@ import { PricePipe } from '../../shared/pipes/price.pipe';
   `,
   styles: [
     `
-      .page { max-width: 1200px; margin: 0 auto; padding: 24px; }
-      .title { font-size: 28px; margin: 0 0 24px; }
-      .centered { display: flex; justify-content: center; padding: 48px; }
+      .page { padding-block: clamp(28px, 5vw, 56px) clamp(56px, 9vw, 112px); }
+      .title { margin: 0 0 clamp(28px, 4vw, 44px); }
+      .centered { display: flex; justify-content: center; padding: 64px; }
 
       .empty {
-        text-align: center; padding: 64px 16px; display: flex; flex-direction: column;
-        align-items: center; gap: 16px;
+        text-align: center; padding: 72px 16px; display: flex; flex-direction: column;
+        align-items: center; gap: 22px; color: var(--c-muted);
       }
-      .empty-icon { font-size: 96px; width: 96px; height: 96px; opacity: 0.3; }
+      .inline-link { text-decoration: underline; text-underline-offset: 3px; }
 
-      .guest-card { max-width: 480px; margin: 32px auto; }
-      .guest-summary { font-size: 16px; margin: 0 0 16px; }
-      .guest-hint { margin-top: 16px; font-size: 13px; color: rgba(0,0,0,0.6); }
+      .guest-card {
+        max-width: 460px; margin: 24px auto 0; padding: 32px;
+        border: 1px solid var(--c-line); background: var(--c-paper-warm);
+        display: flex; flex-direction: column; align-items: flex-start; gap: 18px;
+      }
+      .guest-summary { font-size: 15px; margin: 0; }
+      .guest-hint { margin: 0; font-size: 13px; color: var(--c-muted); line-height: 1.6; }
 
-      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; }
-      @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(28px, 5vw, 56px); align-items: start; }
+      @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 
-      .items { list-style: none; padding: 0; margin: 0; }
+      .items { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--c-line); }
       .row {
         display: grid;
-        grid-template-columns: 96px 1fr auto auto;
-        gap: 16px;
-        padding: 16px 0;
-        border-bottom: 1px solid #eee;
-        align-items: center;
+        grid-template-columns: 104px 1fr auto;
+        gap: 20px;
+        padding: 24px 0;
+        border-bottom: 1px solid var(--c-line);
+        align-items: start;
       }
       .thumb-link { display: block; }
       .thumb {
-        width: 96px; height: 96px; object-fit: cover; border-radius: 4px;
-        background: #f4f4f4;
+        width: 104px; height: 128px; object-fit: cover;
+        background: var(--c-paper-warm);
       }
       .info { min-width: 0; }
       .line-title {
-        display: block; font-weight: 600; color: inherit; text-decoration: none;
-        margin-bottom: 4px;
+        display: block; font-family: var(--font-display); font-size: 1.15rem;
+        margin-bottom: 5px;
       }
-      .line-title:hover { text-decoration: underline; }
-      .line-artist { margin: 0 0 6px; font-size: 13px; color: rgba(0,0,0,0.6); }
+      .line-title:hover { color: var(--c-muted); }
+      .line-artist {
+        margin: 0 0 10px; font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--c-muted);
+      }
       .line-config {
-        margin: 0; font-size: 13px; color: rgba(0,0,0,0.7);
-        display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+        margin: 0 0 16px; font-size: 13px; color: var(--c-muted);
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
       }
-      .frame-chip { display: inline-flex; align-items: center; gap: 4px; }
+      .frame-chip { display: inline-flex; align-items: center; gap: 5px; }
       .frame-dot {
-        display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-        border: 1px solid rgba(0,0,0,0.15);
+        display: inline-block; width: 10px; height: 10px;
+        border: 1px solid var(--c-line-strong);
       }
 
-      .qty { display: flex; align-items: center; gap: 4px; }
-      .qty-val { min-width: 24px; text-align: center; font-weight: 600; }
+      .qty { display: inline-flex; align-items: center; border: 1px solid var(--c-line-strong); }
+      .qty button {
+        width: 34px; height: 34px; border: 0; background: none; cursor: pointer;
+        font-size: 15px; color: var(--c-ink);
+      }
+      .qty button:disabled { opacity: 0.3; cursor: not-allowed; }
+      .qty button:hover:not(:disabled) { background: var(--c-paper-alt); }
+      .qty-val { min-width: 34px; text-align: center; font-size: 13px; font-weight: 600; }
 
       .line-total {
-        display: flex; align-items: center; gap: 8px;
-        font-weight: 600; white-space: nowrap;
+        display: flex; align-items: center; gap: 10px;
+        font-size: 14px; white-space: nowrap;
       }
-      .remove { color: rgba(0,0,0,0.45); }
+      .remove {
+        border: 0; background: none; cursor: pointer; color: var(--c-muted);
+        display: inline-flex; padding: 4px;
+      }
+      .remove:hover { color: var(--c-ink); }
+      .remove mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
-      .summary mat-card { position: sticky; top: 96px; }
+      .summary-card {
+        position: sticky; top: calc(var(--header-h) + 24px);
+        border: 1px solid var(--c-line); background: var(--c-paper-warm);
+        padding: 28px;
+      }
       .subtotal-row {
         display: flex; justify-content: space-between; align-items: baseline;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
       }
-      .subtotal { font-size: 20px; font-weight: 700; }
-      .muted { color: rgba(0,0,0,0.55); font-size: 13px; margin: 0 0 16px; }
-      .checkout-btn { width: 100%; height: 48px; margin-bottom: 8px; }
-      .clear-btn { width: 100%; }
+      .subtotal { font-family: var(--font-display); font-size: 1.5rem; }
+      .muted { color: var(--c-muted); font-size: 12px; margin: 0 0 22px; }
+      .clear-btn { margin-top: 10px; }
     `,
   ],
 })

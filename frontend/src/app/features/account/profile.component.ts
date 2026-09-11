@@ -40,12 +40,8 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth/auth.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
@@ -55,116 +51,98 @@ import { TranslatePipe } from '../../core/i18n/translate.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule,
     TranslatePipe,
   ],
   template: `
-    <div class="page">
+    <div class="page wrap">
       <header class="page-header">
-        <h1>{{ 'profile.title' | translate }}</h1>
-        <button mat-stroked-button (click)="logout()">
-          <mat-icon>logout</mat-icon>
+        <div>
+          <span class="eyebrow">{{ 'nav.account' | translate }}</span>
+          <h1 class="display-2">{{ 'profile.title' | translate }}</h1>
+        </div>
+        <button type="button" class="btn btn--sm" (click)="logout()">
           {{ 'nav.logout' | translate }}
         </button>
       </header>
 
       <div class="grid">
         <!-- ─── Profile info ──────────────────────────────────────────── -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>{{ 'profile.info.title' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="todo-block">
-              {{ 'profile.info.todo' | translate }}
-            </div>
-            <form [formGroup]="profileForm" class="form">
-              <div class="row">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'auth.register.firstNameLabel' | translate }}</mat-label>
-                  <input matInput formControlName="firstName" />
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'auth.register.lastNameLabel' | translate }}</mat-label>
-                  <input matInput formControlName="lastName" />
-                </mat-form-field>
-              </div>
+        <section class="panel">
+          <h2 class="block__title">{{ 'profile.info.title' | translate }}</h2>
+          <p class="note">{{ 'profile.info.todo' | translate }}</p>
+          <form [formGroup]="profileForm" class="form">
+            <div class="row">
               <mat-form-field appearance="outline">
-                <mat-label>{{ 'checkout.shipping.phone' | translate }}</mat-label>
-                <input matInput formControlName="phone" />
+                <mat-label>{{ 'auth.register.firstNameLabel' | translate }}</mat-label>
+                <input matInput formControlName="firstName" />
               </mat-form-field>
-              <button mat-flat-button color="primary" (click)="saveProfile()" [disabled]="true">
-                {{ 'common.save' | translate }}
-              </button>
-            </form>
-          </mat-card-content>
-        </mat-card>
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'auth.register.lastNameLabel' | translate }}</mat-label>
+                <input matInput formControlName="lastName" />
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'checkout.shipping.phone' | translate }}</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+            <button type="button" class="btn btn--sm" (click)="saveProfile()" [disabled]="true">
+              {{ 'common.save' | translate }}
+            </button>
+          </form>
+        </section>
 
         <!-- ─── Change password ───────────────────────────────────────── -->
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>{{ 'profile.password.title' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="todo-block">
-              {{ 'profile.password.todo' | translate }}
-            </div>
-            <form [formGroup]="passwordForm" class="form">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'profile.password.current' | translate }}</mat-label>
-                <input matInput type="password" formControlName="currentPassword" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'profile.password.new' | translate }}</mat-label>
-                <input matInput type="password" formControlName="newPassword" />
-              </mat-form-field>
-              <button mat-flat-button color="primary" (click)="changePassword()" [disabled]="true">
-                {{ 'profile.password.submit' | translate }}
-              </button>
-            </form>
-          </mat-card-content>
-        </mat-card>
+        <section class="panel">
+          <h2 class="block__title">{{ 'profile.password.title' | translate }}</h2>
+          <p class="note">{{ 'profile.password.todo' | translate }}</p>
+          <form [formGroup]="passwordForm" class="form">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'profile.password.current' | translate }}</mat-label>
+              <input matInput type="password" formControlName="currentPassword" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'profile.password.new' | translate }}</mat-label>
+              <input matInput type="password" formControlName="newPassword" />
+            </mat-form-field>
+            <button type="button" class="btn btn--sm" (click)="changePassword()" [disabled]="true">
+              {{ 'profile.password.submit' | translate }}
+            </button>
+          </form>
+        </section>
 
         <!-- ─── Order history ─────────────────────────────────────────── -->
-        <mat-card class="orders-card">
-          <mat-card-header>
-            <mat-card-title>{{ 'profile.orders.title' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="todo-block">
-              {{ 'profile.orders.todo' | translate }}
-            </div>
-          </mat-card-content>
-        </mat-card>
+        <section class="panel orders-card">
+          <h2 class="block__title">{{ 'profile.orders.title' | translate }}</h2>
+          <p class="note">{{ 'profile.orders.empty' | translate }}</p>
+        </section>
       </div>
     </div>
   `,
   styles: [
     `
-      .page { max-width: 1100px; margin: 0 auto; padding: 24px; }
+      .page { padding-block: clamp(32px, 5vw, 56px) clamp(56px, 9vw, 112px); }
       .page-header {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 24px;
+        display: flex; justify-content: space-between; align-items: flex-end;
+        gap: 16px; margin-bottom: clamp(28px, 4vw, 48px);
       }
-      .page-header h1 { margin: 0; font-size: 28px; }
-      .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-      }
+      .page-header h1 { margin-top: 10px; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--c-line); border: 1px solid var(--c-line); }
       .orders-card { grid-column: 1 / -1; }
       @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-      .form { display: flex; flex-direction: column; gap: 4px; }
-      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-      .todo-block {
-        padding: 12px; background: #fff8e1; border-radius: 4px;
-        font-size: 13px; color: #8a6d3b; margin-bottom: 16px;
+      .panel { background: var(--c-paper); padding: 28px; }
+      .block__title {
+        font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); text-transform: uppercase;
+        color: var(--c-muted); margin: 0 0 12px;
       }
+      .note { font-size: 13px; color: var(--c-muted); line-height: 1.6; margin: 0 0 20px; }
+      .form { display: flex; flex-direction: column; gap: 10px; }
+      .form mat-form-field { width: 100%; }
+      .form .btn { align-self: flex-start; margin-top: 6px; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      @media (max-width: 480px) { .row { grid-template-columns: 1fr; } }
     `,
   ],
 })

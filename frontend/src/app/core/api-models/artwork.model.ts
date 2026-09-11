@@ -1,6 +1,7 @@
 // frontend/src/app/core/api-models/artwork.model.ts
 export interface ArtworkCategoryRef {
   id: string;
+  slug: string;
   name: string;
 }
 

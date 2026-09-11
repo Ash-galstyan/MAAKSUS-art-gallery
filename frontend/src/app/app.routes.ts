@@ -14,7 +14,15 @@ export const APP_ROUTES: Routes = [
   {
     path: '',
     pathMatch: 'full',
+    loadComponent: () => import('./features/home/home.component').then((m) => m.HomeComponent),
+  },
+  {
+    path: 'gallery',
     loadChildren: () => import('./features/gallery/gallery.routes').then((m) => m.GALLERY_ROUTES),
+  },
+  {
+    path: 'artists',
+    loadChildren: () => import('./features/artists/artists.routes').then((m) => m.ARTISTS_ROUTES),
   },
   {
     path: 'artwork/:id',

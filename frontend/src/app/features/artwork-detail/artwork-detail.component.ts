@@ -33,11 +33,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { ArtworkDetailService } from './artwork-detail.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { I18nService } from '../../core/i18n/i18n.service';
@@ -51,39 +47,40 @@ import type { ArtworkDetail } from '../../core/api-models/artwork.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    MatButtonModule,
-    MatChipsModule,
-    MatIconModule,
     MatProgressSpinnerModule,
-    MatExpansionModule,
     TranslatePipe,
     UploadUrlPipe,
     PricePipe,
   ],
   template: `
     @if (loading()) {
-      <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="48" /></div>
+      <div class="centered"><mat-progress-spinner mode="indeterminate" diameter="40" /></div>
     } @else if (notFound()) {
       <div class="centered">
-        <mat-icon class="big-icon">image_not_supported</mat-icon>
-        <h2>{{ 'artwork.notFound' | translate }}</h2>
-        <a mat-button routerLink="/">{{ 'artwork.backToGallery' | translate }}</a>
+        <h2 class="display-3">{{ 'artwork.notFound' | translate }}</h2>
+        <a routerLink="/gallery" class="btn btn--sm">{{ 'artwork.backToGallery' | translate }}</a>
       </div>
     } @else if (artwork()) {
-      <article class="page">
+      <article class="page wrap">
+        <nav class="crumbs">
+          <a routerLink="/gallery">{{ 'nav.artPrints' | translate }}</a>
+          <span aria-hidden="true">/</span>
+          <a routerLink="/gallery" [queryParams]="{ category: artwork()!.category.slug }">
+            {{ artwork()!.category.name }}
+          </a>
+        </nav>
+
         <div class="layout">
           <!-- ─── Left: imagery ──────────────────────────────────────────── -->
           <section class="gallery">
-            <div class="hero">
+            <div class="hero ph">
               <img
                 [src]="activeImage()?.mediumPath | uploadUrl"
                 [alt]="artwork()!.title"
                 class="hero-img"
               />
               @if (!artwork()!.isAvailable) {
-                <span class="badge unavailable">
-                  {{ 'artwork.unavailable' | translate }}
-                </span>
+                <span class="badge">{{ 'artwork.unavailable' | translate }}</span>
               }
             </div>
 
@@ -106,17 +103,11 @@ import type { ArtworkDetail } from '../../core/api-models/artwork.model';
 
           <!-- ─── Right: metadata + CTAs ─────────────────────────────────── -->
           <aside class="meta">
-            <a class="category-link" [routerLink]="['/']" [queryParams]="{ categories: artwork()!.category.id }">
-              {{ artwork()!.category.name }}
-            </a>
+            <span class="category-link">{{ artwork()!.category.name }}</span>
 
-            <h1 class="title">{{ artwork()!.title }}</h1>
+            <h1 class="title display-2">{{ artwork()!.title }}</h1>
 
-            <a
-              class="artist"
-              [routerLink]="['/']"
-              [queryParams]="{ q: artwork()!.artist.name }"
-            >
+            <a class="artist" routerLink="/gallery" [queryParams]="{ q: artwork()!.artist.name }">
               {{ artwork()!.artist.name }}
             </a>
 
@@ -145,22 +136,16 @@ import type { ArtworkDetail } from '../../core/api-models/artwork.model';
             </div>
 
             <div class="ctas">
-              <a
-                mat-flat-button
-                color="primary"
-                class="cta"
-                [disabled]="!artwork()!.isAvailable"
-                [routerLink]="['/customize', artwork()!.id]"
-              >
-                <mat-icon>shopping_basket</mat-icon>
-                {{ 'artwork.customizeAndBuy' | translate }}
-              </a>
-              <a
-                mat-stroked-button
-                class="cta"
-                [routerLink]="['/wall-preview', artwork()!.id]"
-              >
-                <mat-icon>preview</mat-icon>
+              @if (artwork()!.isAvailable) {
+                <a class="btn btn--solid btn--block" [routerLink]="['/customize', artwork()!.id]">
+                  {{ 'artwork.customizeAndBuy' | translate }}
+                </a>
+              } @else {
+                <span class="btn btn--block" aria-disabled="true" style="opacity:.45;pointer-events:none">
+                  {{ 'artwork.customizeAndBuy' | translate }}
+                </span>
+              }
+              <a class="btn btn--block" [routerLink]="['/wall-preview', artwork()!.id]">
                 {{ 'artwork.tryOnWall' | translate }}
               </a>
             </div>
@@ -172,19 +157,15 @@ import type { ArtworkDetail } from '../../core/api-models/artwork.model';
           <section class="more">
             @if (artwork()!.history) {
               <div class="block">
-                <h2>{{ 'artwork.history' | translate }}</h2>
+                <span class="eyebrow">{{ 'artwork.history' | translate }}</span>
                 <p>{{ artwork()!.history }}</p>
               </div>
             }
             @if (artwork()!.artist.bio) {
-              <mat-expansion-panel class="bio">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    {{ 'artwork.aboutArtist' | translate: { name: artwork()!.artist.name } }}
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
+              <div class="block">
+                <span class="eyebrow">{{ 'artwork.aboutArtist' | translate: { name: artwork()!.artist.name } }}</span>
                 <p>{{ artwork()!.artist.bio }}</p>
-              </mat-expansion-panel>
+              </div>
             }
           </section>
         }
@@ -195,69 +176,87 @@ import type { ArtworkDetail } from '../../core/api-models/artwork.model';
     `
       .centered {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        min-height: 60vh; gap: 16px; text-align: center;
+        min-height: 60vh; gap: 20px; text-align: center;
       }
-      .big-icon { font-size: 96px; width: 96px; height: 96px; opacity: 0.4; }
 
-      .page { max-width: 1280px; margin: 0 auto; padding: 32px 24px 64px; }
-      .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr); gap: 48px; }
+      .page { padding-block: clamp(24px, 4vw, 44px) clamp(56px, 9vw, 112px); }
+
+      .crumbs {
+        display: flex; gap: 10px; align-items: center;
+        font-size: 11px; font-weight: 600; letter-spacing: var(--tracking-label);
+        text-transform: uppercase; color: var(--c-muted);
+        margin-bottom: clamp(24px, 4vw, 44px);
+      }
+      .crumbs a:hover { color: var(--c-ink); }
+
+      .layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, 1fr); gap: clamp(32px, 6vw, 80px); align-items: start; }
       @media (max-width: 900px) { .layout { grid-template-columns: 1fr; gap: 32px; } }
 
       .gallery .hero {
         position: relative;
-        background: #fafafa;
-        border-radius: 8px;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
         aspect-ratio: 4 / 3;
       }
-      .hero-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+      .gallery .hero.ph::after { inset: 0; border: 0; }
+      .hero-img { position: relative; z-index: 1; max-width: 100%; max-height: 100%; object-fit: contain; }
       .badge {
-        position: absolute; top: 16px; left: 16px;
-        padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;
+        position: absolute; z-index: 2; top: 16px; left: 16px;
+        padding: 7px 12px; font-size: 10px; font-weight: 700;
+        letter-spacing: 0.12em; text-transform: uppercase;
+        background: var(--c-ink); color: var(--c-paper);
       }
-      .badge.unavailable { background: #e53935; color: white; }
 
-      .strip { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+      .strip { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
       .thumb-btn {
-        width: 72px; height: 72px; padding: 0; border: 2px solid transparent;
-        border-radius: 4px; cursor: pointer; background: #f4f4f4;
+        width: 74px; height: 74px; padding: 0; border: 1px solid var(--c-line);
+        cursor: pointer; background: var(--c-paper-warm);
         overflow: hidden;
       }
       .thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .thumb-btn.active { border-color: #673ab7; }
+      .thumb-btn.active { border-color: var(--c-ink); }
 
       .meta { display: flex; flex-direction: column; }
       .category-link {
-        text-transform: uppercase; font-size: 12px; letter-spacing: 0.06em;
-        color: rgba(0,0,0,0.6); text-decoration: none;
+        text-transform: uppercase; font-size: 11px; font-weight: 600;
+        letter-spacing: var(--tracking-label); color: var(--c-muted);
       }
-      .category-link:hover { text-decoration: underline; }
-      .title { font-size: 32px; line-height: 1.2; margin: 8px 0 4px; font-weight: 700; }
+      .title { margin: 14px 0 6px; }
       .artist {
-        font-size: 16px; color: rgba(0,0,0,0.7); text-decoration: none; margin-bottom: 24px;
+        font-size: 14px; color: var(--c-muted); margin-bottom: 28px;
+        width: fit-content;
       }
-      .artist:hover { text-decoration: underline; }
+      .artist:hover { color: var(--c-ink); }
 
-      .specs { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0 0 20px; }
+      .specs {
+        display: grid; grid-template-columns: max-content 1fr; gap: 10px 24px;
+        margin: 0 0 24px; padding: 20px 0; border-block: 1px solid var(--c-line);
+      }
       .specs > div { display: contents; }
-      .specs dt { font-weight: 600; color: rgba(0,0,0,0.6); font-size: 13px; }
+      .specs dt {
+        font-weight: 600; color: var(--c-muted); font-size: 11px;
+        letter-spacing: var(--tracking-label); text-transform: uppercase;
+        align-self: center;
+      }
       .specs dd { margin: 0; font-size: 14px; }
 
-      .description { line-height: 1.55; margin: 0 0 24px; }
+      .description { line-height: 1.7; margin: 0 0 28px; color: var(--c-muted); }
 
-      .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
-      .price-label { font-size: 13px; color: rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 0.05em; }
-      .price { font-size: 24px; font-weight: 700; }
+      .price-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 22px; }
+      .price-label { font-size: 11px; color: var(--c-muted); text-transform: uppercase; letter-spacing: var(--tracking-label); font-weight: 600; }
+      .price { font-family: var(--font-display); font-size: 1.8rem; }
 
       .ctas { display: flex; flex-direction: column; gap: 12px; }
-      .cta { height: 48px; font-size: 15px; gap: 8px; }
 
-      .more { margin-top: 64px; display: flex; flex-direction: column; gap: 24px; }
-      .block h2 { font-size: 20px; margin: 0 0 8px; }
-      .block p { line-height: 1.6; margin: 0; }
+      .more {
+        margin-top: clamp(56px, 8vw, 96px);
+        display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(32px, 6vw, 72px);
+        padding-top: clamp(40px, 5vw, 60px); border-top: 1px solid var(--c-line);
+      }
+      @media (max-width: 720px) { .more { grid-template-columns: 1fr; gap: 32px; } }
+      .block p { line-height: 1.8; margin: 0; color: var(--c-muted); max-width: 62ch; }
     `,
   ],
 })
@@ -298,7 +297,7 @@ export class ArtworkDetailComponent {
       // also re-fetch on locale change (titles/descriptions are localised)
       const _ = this.i18n.locale();
       if (!id) {
-        this.router.navigate(['/']);
+        this.router.navigate(['/gallery']);
         return;
       }
       this.load(id);

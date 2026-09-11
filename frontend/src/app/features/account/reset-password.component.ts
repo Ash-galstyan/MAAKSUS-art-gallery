@@ -18,11 +18,9 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/auth/auth.service';
 import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
@@ -40,78 +38,74 @@ function matchPasswords(group: AbstractControl): ValidationErrors | null {
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressSpinnerModule,
     TranslatePipe,
   ],
   template: `
     <div class="page">
-      <mat-card class="auth-card">
+      <div class="auth-card">
         @if (!token()) {
-          <mat-card-content>
-            <p class="error">{{ 'auth.reset.missingToken' | translate }}</p>
-            <a mat-button routerLink="/account/forgot-password">
-              {{ 'auth.forgot.title' | translate }}
-            </a>
-          </mat-card-content>
+          <p class="error">{{ 'auth.reset.missingToken' | translate }}</p>
+          <a routerLink="/account/forgot-password" class="btn btn--sm btn--block">
+            {{ 'auth.forgot.title' | translate }}
+          </a>
         } @else if (success()) {
-          <mat-card-header>
-            <mat-card-title>{{ 'auth.reset.successTitle' | translate }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p>{{ 'auth.reset.successBody' | translate }}</p>
-            <a mat-flat-button color="primary" routerLink="/account/login">
-              {{ 'auth.reset.goToLogin' | translate }}
-            </a>
-          </mat-card-content>
+          <header class="auth-head">
+            <h1 class="display-3">{{ 'auth.reset.successTitle' | translate }}</h1>
+          </header>
+          <p class="body">{{ 'auth.reset.successBody' | translate }}</p>
+          <a routerLink="/account/login" class="btn btn--solid btn--block">
+            {{ 'auth.reset.goToLogin' | translate }}
+          </a>
         } @else {
-          <mat-card-header>
-            <mat-card-title>{{ 'auth.reset.title' | translate }}</mat-card-title>
-            <mat-card-subtitle>{{ 'auth.reset.subtitle' | translate }}</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'auth.reset.newPasswordLabel' | translate }}</mat-label>
-                <input matInput [type]="hidePw() ? 'password' : 'text'"
-                       formControlName="newPassword" autocomplete="new-password" required />
-                <button mat-icon-button matSuffix type="button" (click)="hidePw.set(!hidePw())">
-                  <mat-icon>{{ hidePw() ? 'visibility_off' : 'visibility' }}</mat-icon>
-                </button>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'auth.reset.confirmLabel' | translate }}</mat-label>
-                <input matInput [type]="hidePw() ? 'password' : 'text'"
-                       formControlName="confirm" autocomplete="new-password" required />
-                @if (form.errors?.['mismatch'] && form.get('confirm')?.touched) {
-                  <mat-error>{{ 'auth.reset.mismatch' | translate }}</mat-error>
-                }
-              </mat-form-field>
-
-              <button mat-flat-button color="primary" type="submit"
-                      [disabled]="form.invalid || submitting()">
-                @if (submitting()) {
-                  <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
-                } @else {
-                  {{ 'auth.reset.submit' | translate }}
-                }
+          <header class="auth-head">
+            <span class="eyebrow">{{ 'auth.reset.subtitle' | translate }}</span>
+            <h1 class="display-3">{{ 'auth.reset.title' | translate }}</h1>
+          </header>
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'auth.reset.newPasswordLabel' | translate }}</mat-label>
+              <input matInput [type]="hidePw() ? 'password' : 'text'"
+                     formControlName="newPassword" autocomplete="new-password" required />
+              <button mat-icon-button matSuffix type="button" (click)="hidePw.set(!hidePw())">
+                <mat-icon>{{ hidePw() ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
-            </form>
-          </mat-card-content>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'auth.reset.confirmLabel' | translate }}</mat-label>
+              <input matInput [type]="hidePw() ? 'password' : 'text'"
+                     formControlName="confirm" autocomplete="new-password" required />
+              @if (form.errors?.['mismatch'] && form.get('confirm')?.touched) {
+                <mat-error>{{ 'auth.reset.mismatch' | translate }}</mat-error>
+              }
+            </mat-form-field>
+
+            <button type="submit" class="btn btn--solid btn--block"
+                    [disabled]="form.invalid || submitting()">
+              {{ (submitting() ? 'common.loading' : 'auth.reset.submit') | translate }}
+            </button>
+          </form>
         }
-      </mat-card>
+      </div>
     </div>
   `,
   styles: [
     `
-      .page { display: flex; justify-content: center; padding: 48px 16px; }
-      .auth-card { width: 100%; max-width: 420px; }
-      .form { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
-      .error { color: #c00; }
+      .page { display: flex; justify-content: center; padding: clamp(48px, 9vw, 112px) var(--gutter); }
+      .auth-card {
+        width: 100%; max-width: 420px;
+        border: 1px solid var(--c-line); background: var(--c-paper);
+        padding: clamp(28px, 5vw, 44px);
+      }
+      .auth-head { margin-bottom: 24px; }
+      .auth-head h1 { margin-top: 10px; }
+      .form { display: flex; flex-direction: column; gap: 14px; }
+      .form mat-form-field { width: 100%; }
+      .body { color: var(--c-muted); font-size: 14px; line-height: 1.7; margin: 0 0 22px; }
+      .error { color: var(--mat-sys-error); margin: 0 0 20px; font-size: 14px; }
     `,
   ],
 })

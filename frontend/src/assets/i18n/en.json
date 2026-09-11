@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Art Gallery",
+    "appName": "Maaksus",
     "dismiss": "Dismiss",
     "loading": "Loading…",
     "save": "Save",
@@ -67,20 +67,198 @@
     "redirecting": "Redirecting to bank…",
     "payHint": "You'll be redirected to Ameriabank's secure payment page. Your card details are entered there, not here."
   },
+  "order": {
+    "notFound": "Order not found.",
+    "numberLabel": "Order",
+    "items": "Items",
+    "total": "Total",
+    "shipping": {
+      "title": "Shipping address"
+    },
+    "confirmation": {
+      "eyebrow": "Thank you",
+      "title": "Your order is confirmed",
+      "subtitle": "A confirmation is on its way to your inbox. We'll be in touch as your pieces are prepared.",
+      "pendingEyebrow": "Received",
+      "pendingTitle": "Your order is being processed",
+      "pendingSubtitle": "Payment is still being confirmed. We'll email you as soon as it completes.",
+      "continueShopping": "Continue shopping",
+      "viewOrders": "View my orders"
+    },
+    "failed": {
+      "title": "Payment was not completed",
+      "statusLabel": "Status",
+      "subtitle": "Your card was not charged and your cart is still saved. You can try again whenever you're ready.",
+      "tryAgain": "Try again",
+      "backToCart": "Back to cart"
+    }
+  },
   "nav": {
     "gallery": "Gallery",
+    "artPrints": "Art prints",
+    "photography": "Photography",
+    "artists": "Artists",
+    "collections": "Collections",
+    "newArrivals": "New arrivals",
+    "inspiration": "Inspiration",
+    "trade": "Trade & designers",
+    "collectorsCircle": "Collector's Circle",
+    "search": "Search",
+    "searchPlaceholder": "Search artists, subjects, collections…",
+    "searchClose": "Close search",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
     "cart": "Cart",
     "account": "Account",
+    "signIn": "Sign in",
     "login": "Log in",
     "logout": "Log out",
     "register": "Sign up",
     "profile": "Profile",
     "admin": "Admin"
   },
+  "announce": {
+    "prints": "Museum-quality prints",
+    "printsNote": "Made with archival-grade materials",
+    "framing": "Expert framing",
+    "framingNote": "Crafted with precision",
+    "trade": "Trade & designers",
+    "tradeNote": "Professional services & pricing",
+    "delivery": "Worldwide delivery",
+    "deliveryNote": "Art delivered with care"
+  },
+  "home": {
+    "hero": {
+      "titleLine1": "Art,",
+      "titleLine2": "beautifully made.",
+      "body": "Exceptional art prints, crafted with museum-quality materials and made to transform the spaces you live and work in.",
+      "ctaPrimary": "Explore art",
+      "ctaSecondary": "Shop by room"
+    },
+    "curated": {
+      "eyebrow": "Curated for you",
+      "title": "Find art that speaks to you",
+      "lead": "Discover works selected for different tastes, spaces and ways of living.",
+      "tag": "New",
+      "newArrivals": "New arrivals",
+      "newArrivalsNote": "Fresh discoveries for your walls",
+      "abstract": "Abstract",
+      "abstractNote": "Colour, form and expression",
+      "photography": "Photography",
+      "photographyNote": "Remarkable moments, beautifully captured",
+      "modern": "Modern & contemporary",
+      "modernNote": "Art for today's interiors",
+      "bw": "Black & white",
+      "bwNote": "Timeless. Graphic. Refined.",
+      "collections": "Curated collections",
+      "collectionsNote": "Stories told through art"
+    },
+    "rooms": {
+      "eyebrow": "Shop by space",
+      "title": "Art, in its place",
+      "lead": "See how the right artwork can transform a room. Explore curated selections created for different spaces, proportions and moods.",
+      "cta": "Explore by room",
+      "living": "Living room",
+      "livingNote": "Make a statement",
+      "bedroom": "Bedroom",
+      "bedroomNote": "Create a quieter atmosphere",
+      "dining": "Dining room",
+      "diningNote": "Bring people together",
+      "office": "Office",
+      "officeNote": "Give the space character",
+      "hospitality": "Hospitality",
+      "hospitalityNote": "Create memorable interiors"
+    },
+    "craft": {
+      "eyebrow": "Quality & craftsmanship",
+      "title": "Made to be lived with",
+      "lead": "Beautiful art deserves exceptional craftsmanship. From archival papers and fine-art printing to carefully selected frames and finishing, every piece is produced with attention to detail and made to retain its beauty for years to come.",
+      "cta": "Discover our craft",
+      "printing": "Fine-art printing",
+      "printingNote": "Exceptional colour, detail and tonal depth.",
+      "materials": "Archival materials",
+      "materialsNote": "Premium papers selected for their character and longevity.",
+      "framing": "Expert framing",
+      "framingNote": "Frames chosen to complement the artwork, not compete with it.",
+      "care": "Made with care",
+      "careNote": "Each work is prepared specifically for your order."
+    },
+    "artists": {
+      "eyebrow": "Artists & stories",
+      "title": "Behind the art",
+      "body": "Meet the artists, photographers and image-makers behind the works. Explore their ideas, inspirations and stories — and discover the creative process behind the art you bring into your space.",
+      "ctaArtists": "Meet the artists",
+      "ctaStories": "Read the stories"
+    },
+    "finder": {
+      "eyebrow": "Art finder",
+      "title": "Not sure where to start?",
+      "body": "Finding art should be inspiring, not overwhelming. Tell us about your space, colours and style, and we'll help you discover works that feel right for you.",
+      "cta": "Find your art",
+      "note": "Takes less than 2 minutes."
+    },
+    "trade": {
+      "eyebrow": "Trade & design professionals",
+      "title": "Art for exceptional spaces",
+      "body": "A dedicated art service for interior designers, architects, hospitality professionals, galleries and commercial projects. Access professional pricing, project support, custom formats, framing solutions and curated collections for spaces of every scale.",
+      "ctaPrimary": "Become a trade partner",
+      "ctaSecondary": "Discover trade services",
+      "pricing": "Professional pricing",
+      "pricingNote": "Preferential terms for approved trade partners",
+      "support": "Project support",
+      "supportNote": "From a single interior to large-scale installations",
+      "formats": "Custom formats",
+      "formatsNote": "Flexible sizing and framing for your specifications",
+      "sourcing": "Art sourcing",
+      "sourcingNote": "Curated recommendations for your project and brief"
+    },
+    "circle": {
+      "eyebrow": "The Collector's Circle",
+      "title": "There is always room for one more remarkable piece",
+      "body": "Join our Collector's Circle and enjoy a more personal way to discover and collect art.",
+      "cta": "Join the Collector's Circle",
+      "note": "Membership is complimentary.",
+      "access": "Early access",
+      "accessNote": "Discover selected new releases before everyone else.",
+      "privileges": "Member privileges",
+      "privilegesNote": "Enjoy benefits that grow with your collection.",
+      "recommendations": "Personal recommendations",
+      "recommendationsNote": "Discover art selected around your tastes and interests.",
+      "exclusive": "Exclusive collections",
+      "exclusiveNote": "Access special releases and limited opportunities."
+    }
+  },
   "footer": {
-    "rights": "© {{year}} Art Gallery. All rights reserved.",
+    "statement": "Art has the power to change how a space feels. We bring together exceptional images, fine-art printing and expert craftsmanship to make finding and living with art beautifully simple.",
+    "newsletterTitle": "A little more art in your inbox",
+    "newsletterBody": "New artists, remarkable interiors, curated collections and stories worth discovering.",
+    "emailPlaceholder": "Email address",
+    "join": "Join us",
+    "joined": "Thank you — look out for our next dispatch.",
+    "colShop": "Shop",
+    "colExplore": "Explore",
+    "colServices": "Services",
+    "colSupport": "Support",
+    "linkArtPrints": "Art prints",
+    "linkPhotography": "Photography",
+    "linkNewArrivals": "New arrivals",
+    "linkCollections": "Collections",
+    "linkArtists": "Artists",
+    "linkStory": "Our story",
+    "linkCraft": "Craftsmanship",
+    "linkJournal": "Journal",
+    "linkTrade": "Trade & designers",
+    "linkCircle": "Collector's Circle",
+    "linkFinder": "Art finder",
+    "linkGiftCards": "Gift cards",
+    "linkContact": "Contact",
+    "linkShipping": "Shipping & delivery",
+    "linkReturns": "Returns & care",
+    "linkFaq": "FAQ",
+    "rights": "© {{year}} Maaksus. All rights reserved.",
     "contact": "Contact",
-    "terms": "Terms"
+    "terms": "Terms",
+    "privacy": "Privacy"
   },
   "auth": {
     "login": {
@@ -128,13 +306,32 @@
     }
   },
   "gallery": {
+    "pageEyebrow": "The collection",
+    "pageTitle": "Art prints",
+    "pageLead": "Fine art and photography prints, each made to order on archival materials.",
     "searchPlaceholder": "Search artworks...",
     "filtersTitle": "Categories",
     "categories": "Categories",
     "allCategories": "All categories",
     "filterByCategory": "Filter by category",
     "noResults": "No artworks match your filters.",
-    "loadingMore": "Loading more..."
+    "loadingMore": "Loading more...",
+    "clearAll": "Clear all",
+    "removeFilter": "Remove filter: {{name}}",
+    "filterArtist": "Artist",
+    "filterPrice": "Price",
+    "filterShape": "Shape",
+    "sortLabel": "Sort",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: low to high",
+    "sortPriceDesc": "Price: high to low",
+    "shapePortrait": "Portrait",
+    "shapeLandscape": "Landscape",
+    "shapeSquare": "Square",
+    "priceFrom": "From",
+    "priceTo": "To",
+    "priceAny": "Any price",
+    "newArrivalsHeading": "New arrivals"
   },
   "artwork": {
     "year": "Year",
@@ -144,7 +341,11 @@
     "tryOnWall": "Try on your wall",
     "history": "History",
     "aboutArtist": "About the artist",
-    "notFound": "Artwork not found."
+    "notFound": "Artwork not found.",
+    "backToGallery": "Back to gallery",
+    "unavailable": "Currently unavailable",
+    "from": "From",
+    "image": "Image {{n}}"
   },
   "errors": {
     "GENERIC": "Something went wrong. Please try again.",
@@ -393,5 +594,12 @@
     "signUp": "Sign up",
     "guestHint": "You're shopping as a guest. Log in or sign up to check out and keep your cart across devices.",
     "guestSummary": "Items in cart"
+  },
+  "artists": {
+    "pageEyebrow": "The makers",
+    "pageTitle": "Artists",
+    "pageLead": "The painters, printmakers and photographers behind the collection.",
+    "viewWorks": "View works",
+    "empty": "No artists to show yet."
   }
 }
